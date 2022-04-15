@@ -1,29 +1,36 @@
 ---
 title: "RStudio und GitHub - ein kurzes Tutorial"
 output: html_document
-date: '2022-04-15'
+date: '15.04.2022'
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Git bereits installiert? Dann klick hier: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)
 
-## R Markdown
+## Herzlich willkommen
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Was du hier findest, ist ein kurzer Überblick über das Setup einer GitHub-Verbindung für deinem Rechner. Da mein Fokus auf der Nutzung von R liegt, werde ich dabei primär (wenn möglich) direkt mit R bzw. aus RStudio heraus arbeiten.  
+Der Vorgang unterteilt sich dabei in einige teilweise recht spezifische Schritte, die insbesondere für Menschen ohne große Erfahrung mit Kommandozeilen eine Herausforderung sein können - der große Vorteil ist jedoch, dass das Ganze prinzipiell nur ein einmal pro Computer auftretender Aufwand sein sollte, auch wenn es in der Nutzung teilweise deutliche Veränderungen des Workflows erfordern kann.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Schritt 1: Git
 
-```{r cars}
-summary(cars)
-```
+GitHub ist an und für sich "nur" ein Webservice, der die von Nutzern hochgeladenen Dateien speichert und präsentiert. Die Kommunikation zwischen GitHub und den Nutzern erfolgt dabei über eine Reihe an standardisierten Befehlen, die durch die **Git**-Software bereitgestellt werden. Git selbst benötigt jedoch ein Unix-Terminal, um zu funktionieren. Mac- und Linux-Nutzer sind deshalb klar im Vorteil, während Windows-Nutzer ein paar Installationsschritte mehr ausführen müssen:
 
-## Including Plots
+#### Git auf Linux/Unix
+Je nach gewählter Distribution sollte sich Git einfach über den jeweils mitgelieferten Package-Manager installieren lassen. Eine Übersicht für die bekannteren Distros: https://git-scm.com/download/linux
 
-You can also embed plots, for example:
+#### Git auf MacOS
+Mit etwas Glück ist Git bereits auf dem Mac installiert. Um dies zu überprüfen, öffne das Terminal und gib `git --version` ein. Erscheint eine Versionsnummer, so ist Git bereits installiert. Sollte Git jedoch nicht installiert sein, so *müsste* MacOS eigentlich automatisch nachfragen, ob es Git installieren soll.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+#### Git auf Windows
+Da Windows im Gegensatz zu Linux und MacOS keine Unix-Integration besitzt, muss neben Git auch noch ein Unix-Terminal installiert werden. Glücklicherweise kommt Git bereits von sich aus mit einem Terminal-Interface (**Git Bash**), das sich auch direkt in RStudio nutzen lässt.
+Deshalb muss Git auch mit einen Installer von der offiziellen Webseite (https://git-scm.com/) installiert werden.
+##### Installationshinweis
+Git wird während des Installationsprozesses nach einem Standard-Editor fragen. Vom standardmäßig ausgewählten Editor (**VIM**) rate ich jedoch jedem ab, der nicht bereits Erfahrung mit **VI** oder **VIM** besitzt! Sollte dir keiner der aufgelisteten Editoren bekannt vorkommen, so rate ich zu **Nano** als wohl simpelsten der aufgelisteten Programme, oder **Notepad++**. Alle weiteren Installationsschritte können für den normalen Gebrauch auf den Standardeinstellungen belassen werden.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Schritt 2: Stelle dich Git vor
+
+
+Für eine gründlichere Beleuchtung der Nutzung von R mit Git und GitHub verweise ich gerne auf: https://happygitwithr.com/index.html
