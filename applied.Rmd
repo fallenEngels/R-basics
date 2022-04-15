@@ -1,7 +1,7 @@
 ---
 title: "Arbeiten mit GitHub in RStudio"
 output: html_document
-date: '2022-04-15'
+date: '15.04.2022'
 ---
 
 ```{r setup, include=FALSE}
