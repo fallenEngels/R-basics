@@ -47,4 +47,4 @@ Dieses Token lässt sich glücklicherweise ebenfalls direkt aus R heraus lokal s
 Nun mit Git installiert und allem soweit bereit, kann es mit dem eigentlichen Ziel dieses Vorhabens losgehen: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)  
 
 Für eine gründlichere Beleuchtung der Nutzung von R mit Git und GitHub verweise ich gerne auf: https://happygitwithr.com/index.html  
-Je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alle hier aufgeführten Schritte auf meiner Maschine getestet, das ist jedoch keine Funktionsgarantie.
+Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alle hier aufgeführten Schritte auf meiner Maschine getestet, das ist jedoch keine Funktionsgarantie.
