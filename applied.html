@@ -370,7 +370,10 @@ pre code {
 <div id="projektstart" class="section level2">
 <h2>Projektstart</h2>
 <p>Für die Integration von GitHub mit RStudio-Projekten lassen sich zwei
-generelle Ansätze unterscheiden:<br />
+generelle Ansätze unterscheiden. Dabei ist es <strong>zwingend</strong>
+notwendig, dass es sich um ein RStudio-<em>Projekt</em> und nicht nur
+eine Ansammlung einzelner Script-Dateien handelt, da die Git-Integration
+nach den durch Projekte erstellten .rproj-Dateien ausschau hält.<br />
 #### Neues Projekt, gestartet auf GitHub<br />
 Die in meinen Augen beste und angenehmste Option, da einem automatisch
 viel der Setup-Arbeit abgenommen wird.<br />
@@ -387,24 +390,28 @@ Gründen der Organisiertheit zusätzlich dazu, sich einen festen Ordner
 auszusuchen, in dem alle zukünftigen Projekte gespeichert werden sollen,
 und diesen unter <code>Create Project as subdirectory of</code>
 anzugeben. RStudio wird sich diesen Ordner merken und für das nächste
-Projekt bereits standardmäßig ausfüllen.<br />
+Projekt bereits ausfüllen.<br />
 Der große Vorteil dieser Reihenfolge ist, dass die ausgewählte
-GitHub-Repo bereits standardmäßig als <code>origin</code> gesehen wird,
-und lokale Veränderungen den GitHub-Veränderungen folgen. Ohne sich groß
-mit <code>Push</code> und <code>Pull</code>-Setup beschäftigen zu
-müssen, sollte das Projekt nun direkt einsatzbereit sein.</p>
+GitHub-Repo standardmäßig als <code>origin</code> gesehen wird, und
+lokale Veränderungen den GitHub-Veränderungen folgen. Ohne sich groß mit
+<code>Push</code> und <code>Pull</code>-Setup beschäftigen zu müssen,
+sollte das Projekt mit dieser Methode daher direkt einsatzbereit
+sein.<br />
+Sollte das von die rausgewählte GitHub-Repository bereits Inhalte
+aufweisen, so sollten diese im Rahmen des Setups durch RStudio
+automatisch heruntergeladen werden.</p>
 <div id="bereits-lokal-existierendes-projekt" class="section level4">
 <h4>Bereits lokal existierendes Projekt</h4>
 <p>Hast du ein altes Projekt, das du jetzt mit deinem neu erlangten
 Wissen über GitHub sichern und/oder teilen willst? Dann ist dies der
 Schritt für dich.<br />
-Die Grundidee ist dabei die selbe wie bei der erstellung eines neuen
+Die Grundidee ist dabei die selbe wie bei der Erstellung eines neuen
 Projektes. Wir folgen den oben beschriebenen Schritten, um uns ein neues
 (leeres) Repo auf GitHub zu stellen, und lokal aus RStudio als neues
 Projekt anzuwählen.<br />
 Der Kniff hier ist jedoch, dass du nun nach abgeschlossenem Setup des
 Projektordners einfach dreist hergehen und deine bereits erstellten
-Dateien über einen Explorer in den eben erstellten Projektordner
+Dateien über einen Datei-Explorer in den eben erstellten Projektordner
 verschieben kannst. Die Git-Schnittstelle in RStudio wird die
 hineinkopierten Dateien als neue Inhalte erkennen und eine
 Synchronisierung ermöglichen.</p>

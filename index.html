@@ -452,25 +452,15 @@ folgt ein:</p>
 <pre><code>[user]
     name = Dein Name
     email = github@mailadresse.com</code></pre>
-<p>Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen. Wir
-wollen jedoch noch einen Schritt weiter gehen, und unsere Änderungen
-auch mit den GitHub-Servern synchronisieren. Dazu brauchen wir neben der
-Mailadresse auch noch ein so genanntes Personal-Access-Token (PAT).
-Glücklicherweise kommt <code>usethis</code> hierfür mit dem Befehl
-<code>create_github_token()</code>, der direkt in einem Browserfenster
-die richtige GitHub-Seite zur PAT-Generierung öffnen sollte.<br />
+<p>Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen, und die
+Änderungen mit GitHub zu synchronisieren.<br />
 <strong>!ACHTUNG!</strong><br />
-Sobald das Token einmal generiert ist, kann es nicht mehr eingesehen
-werden! Schreib es dir also auf oder speichere es in dem
-Passwortmanager, den du sowieso bereits benutzt (du benutzt doch
-hoffentlich einen Passwortmanager, oder?), ab!<br />
-Dieses Token lässt sich glücklicherweise ebenfalls direkt aus R heraus
-lokal speichern. Hierfür lässt sich die
-<code>gitcreds_set()</code>-Funktion des in Kombination mit dem
-<code>usethis</code>-Package installierten Package <code>gitcreds</code>
-benutzen. Im Eingabedialog dieser Funktion müssen jetzt nur noch dein
-GitHub-Nutzername und das eben generierte Token angegeben werden (NICHT
-das GitHub-Passwort), und an sich sollte nun alles funktionieren.</p>
+Da nur Name und Mailadresse angegeben werden, sollte jedem ersichtlich
+sein, dass prinzipiell alle Nutzer mit Zugriff auf deine Mailadresse in
+deinem Namen zu deinen Projekten Commits erstellen können!<br />
+Dies lässt sich über die Nutzung von geheimen Pass-Keys verhindern, die
+jedoch absolut furchtbar im Setup sind, und auf die ich hier nicht
+weiter eingehen will.</p>
 </div>
 <div id="schritt-3-arbeiten-mit-github" class="section level2">
 <h2>Schritt 3: Arbeiten mit GitHub</h2>

@@ -38,10 +38,10 @@ Nach dem Installieren und Laden des `usethis`-Packages kann die Git-Configdatei 
 	name = Dein Name
 	email = github@mailadresse.com
 ```  
-Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen. Wir wollen jedoch noch einen Schritt weiter gehen, und unsere Änderungen auch mit den GitHub-Servern synchronisieren. Dazu brauchen wir neben der Mailadresse auch noch ein so genanntes Personal-Access-Token (PAT). Glücklicherweise kommt `usethis` hierfür mit dem Befehl `create_github_token()`, der direkt in einem Browserfenster die richtige GitHub-Seite zur PAT-Generierung öffnen sollte.  
+Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen, und die Änderungen mit GitHub zu synchronisieren.  
 **!ACHTUNG!**  
-Sobald das Token einmal generiert ist, kann es nicht mehr eingesehen werden! Schreib es dir also auf oder speichere es in dem Passwortmanager, den du sowieso bereits benutzt (du benutzt doch hoffentlich einen Passwortmanager, oder?), ab!  
-Dieses Token lässt sich glücklicherweise ebenfalls direkt aus R heraus lokal speichern. Hierfür lässt sich die `gitcreds_set()`-Funktion des in Kombination mit dem `usethis`-Package installierten Package `gitcreds` benutzen. Im Eingabedialog dieser Funktion müssen jetzt nur noch dein GitHub-Nutzername und das eben generierte Token angegeben werden (NICHT das GitHub-Passwort), und an sich sollte nun alles funktionieren.  
+Da nur Name und Mailadresse angegeben werden, sollte jedem ersichtlich sein, dass prinzipiell alle Nutzer mit Zugriff auf deine Mailadresse in deinem Namen zu deinen Projekten Commits erstellen können!  
+Dies lässt sich über die Nutzung von geheimen Pass-Keys verhindern, die jedoch absolut furchtbar im Setup sind, und auf die ich hier nicht weiter eingehen will.
 
 ## Schritt 3: Arbeiten mit GitHub
 Nun mit Git installiert und allem soweit bereit, kann es mit dem eigentlichen Ziel dieses Vorhabens losgehen: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)  
