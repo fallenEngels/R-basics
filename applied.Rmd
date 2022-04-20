@@ -5,8 +5,9 @@ date: '15.04.2022'
 ---
 
 ## Projektstart  
-Für die Integration von GitHub mit RStudio-Projekten lassen sich zwei generelle Ansätze unterscheiden. Dabei ist es **zwingend** notwendig, dass es sich um ein RStudio-*Projekt* und nicht nur eine Ansammlung einzelner Script-Dateien handelt, da die Git-Integration nach den durch Projekte erstellten .rproj-Dateien ausschau hält.  
-#### Neues Projekt, gestartet auf GitHub  
+Für die Integration von GitHub mit RStudio-Projekten lassen sich zwei generelle Ansätze unterscheiden. Dabei ist es **zwingend** notwendig, dass es sich um ein RStudio-*Projekt* und nicht nur eine Ansammlung einzelner Script-Dateien handelt, da die Git-Integration nach den durch Projekte erstellten *.rproj*-Dateien ausschau hält.  
+
+#### Neues Projekt gestartet auf GitHub  
 Die in meinen Augen beste und angenehmste Option, da einem automatisch viel der Setup-Arbeit abgenommen wird.  
 - Gehe auf GitHub, drücke auf "+" und erstelle dir ein neues Repository  
 - Ruf dein erstelltes Repository auf, drück den großen grünen `Code`-Knopf und kopiere dir die dort angezeigte Web-Adresse.  

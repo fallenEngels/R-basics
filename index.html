@@ -394,14 +394,14 @@ bereitgestellt werden. Git selbst benötigt jedoch ein Unix-Terminal, um
 zu funktionieren. Mac- und Linux-Nutzer sind dabei klar im Vorteil,
 während Windows-Nutzer ein paar Installationsschritte mehr ausführen
 müssen:</p>
-<div id="git-auf-linuxunix" class="section level4">
-<h4>Git auf Linux/Unix</h4>
+<div id="git-auf-linuxunix" class="section level3">
+<h3>Git auf Linux/Unix</h3>
 <p>Je nach gewählter Distribution sollte sich Git einfach über den
 jeweils mitgelieferten Package-Manager installieren lassen. Eine
 Übersicht für die bekannteren Distros: <a href="https://git-scm.com/download/linux" class="uri">https://git-scm.com/download/linux</a></p>
 </div>
-<div id="git-auf-macos" class="section level4">
-<h4>Git auf MacOS</h4>
+<div id="git-auf-macos" class="section level3">
+<h3>Git auf MacOS</h3>
 <p>Mit etwas Glück ist Git bereits auf dem Mac installiert. Um dies zu
 überprüfen, öffne die Terminal-Applikation und gib
 <code>git --version</code> ein. Erscheint eine Versionsnummer, so ist
@@ -409,27 +409,31 @@ Git bereits installiert. Sollte Git jedoch nicht installiert sein, so
 <em>müsste</em> MacOS eigentlich automatisch nachfragen, ob es Git
 installieren soll.</p>
 </div>
-<div id="git-auf-windows" class="section level4">
-<h4>Git auf Windows</h4>
+<div id="git-auf-windows" class="section level3">
+<h3>Git auf Windows</h3>
 <p>Da Windows im Gegensatz zu Linux und MacOS keine Unix-Integration
 besitzt, muss neben Git auch noch ein Unix-Terminal installiert werden.
 Glücklicherweise kommt Git bereits von sich aus mit einem
 Terminal-Interface (<strong>Git Bash</strong>), das sich auch direkt in
 RStudio nutzen lässt. Deshalb muss Git auch mit einen Installer von der
-offiziellen Webseite (<a href="https://git-scm.com/" class="uri">https://git-scm.com/</a>) installiert werden.<br />
-##### Installationshinweis<br />
-Git wird während des Installationsprozesses nach einem Standard-Editor
-fragen. Vom standardmäßig ausgewählten Editor (<strong>VIM</strong>)
-rate ich jedoch jedem ab, der nicht bereits Erfahrung mit
-<strong>VI</strong> oder <strong>VIM</strong> besitzt! Sollte dir keiner
-der aufgelisteten Editoren bekannt vorkommen, so rate ich zu
-<strong>Nano</strong> als wohl simpelsten der aufgelisteten Editoren,
-oder aus persönlicher Präferenz meinerseits zu
-<strong>Notepad++</strong>. Alle weiteren Installationsschritte können
-für den normalen Gebrauch auf den Standardeinstellungen belassen
-werden.<br />
-##### Git und Git Bash in RStudio integrieren<br />
-Eigentlich sollte RStudio Git direkt nach der Installation erkennen
+offiziellen Webseite (<a href="https://git-scm.com/" class="uri">https://git-scm.com/</a>) installiert werden.</p>
+<div id="installationshinweis" class="section level4">
+<h4>Installationshinweis</h4>
+<p>Git wird während des Installationsprozesses nach einem
+Standard-Editor fragen. Vom standardmäßig ausgewählten Editor
+(<strong>VIM</strong>) rate ich jedoch jedem ab, der nicht bereits
+Erfahrung mit <strong>VI</strong> oder <strong>VIM</strong> besitzt!
+Sollte dir keiner der aufgelisteten Editoren bekannt vorkommen, so rate
+ich zu <strong>Nano</strong> als wohl simpelsten der aufgelisteten
+Editoren, oder aus persönlicher Präferenz meinerseits zu
+<strong>Notepad++</strong> (falls du Notepad++ installiert haben
+solltest). Alle weiteren Installationsschritte können für den normalen
+Gebrauch auf den Standardeinstellungen belassen werden.</p>
+</div>
+</div>
+<div id="git-und-git-bash-in-rstudio-integrieren" class="section level3">
+<h3>Git und Git Bash in RStudio integrieren</h3>
+<p>Eigentlich sollte RStudio Git direkt nach der Installation erkennen
 können. Ist dies nicht der Fall, so gehe in RStudio zu
 <code>Tools -&gt; Global Options -&gt; GIT/SVN</code> und überprüfe, ob
 die Git-Executable erkannt wird. Sollte sie nicht erkannt werden, so
@@ -453,14 +457,29 @@ folgt ein:</p>
     name = Dein Name
     email = github@mailadresse.com</code></pre>
 <p>Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen, und die
-Änderungen mit GitHub zu synchronisieren.<br />
-<strong>!ACHTUNG!</strong><br />
-Da nur Name und Mailadresse angegeben werden, sollte jedem ersichtlich
-sein, dass prinzipiell alle Nutzer mit Zugriff auf deine Mailadresse in
-deinem Namen zu deinen Projekten Commits erstellen können!<br />
-Dies lässt sich über die Nutzung von geheimen Pass-Keys verhindern, die
-jedoch absolut furchtbar im Setup sind, und auf die ich hier nicht
-weiter eingehen will.</p>
+Änderungen mit GitHub zu synchronisieren. Um diese Änderungen mit GitHub
+synchronisieren zu können, muss noch eine Form der Verifizierung
+hinterlegt werden - wenn es sich nur um Name und Mailadresse handeln
+würde, könnte ja quasi jeder Dritte in deinem Namen Commits
+erstellen.<br />
+Auch hier kann das <code>usethis</code>-Package dein Leben bedeutend
+angenehmer machen: Ein Ausführen der Funktion
+<code>create_github_token()</code> sollte dich direkt auf die richtige
+Webseite leiten, um dir ein sogenanntes Personal Access Token zu
+generieren. Je nach individuellen VOrlieben kannst du hierbei festlegen,
+ob das Token nur eine begrenzte Gültigkeit haben (nützlich bspw. für das
+Arbeiten an PCs anderer Leute) oder unbegrenzt gültig sein soll, und die
+mit dem Token verbundenen Rechte bearbeiten. Nach Abschluss dieses
+Prozesses sollte dir GitHub dein Token im Format <code>ghp_...</code>
+präsentieren. Kopiere dir dieses Token für die nächsten Schritte, du
+wirst es nie wieder sehen können, sobald du die Seite schließt!<br />
+Dieses Token kannst du nun durch Ausführen der gemeinsam mit
+<code>usethis</code> installierten Funktion
+<code>gitcreds::gitcreds_set()</code> direkt aus R auf deinem PC
+hinterlegen. Mit der Funktion <code>git_sitrep()</code> kannst du
+überprüfen, ob dein Token richtig hinterlegt wurde.<br />
+Herzlichen Glückwunsch! Alles sollte nun (hoffentlich) für das Arbeiten
+mit GitHub bereit sein.</p>
 </div>
 <div id="schritt-3-arbeiten-mit-github" class="section level2">
 <h2>Schritt 3: Arbeiten mit GitHub</h2>
