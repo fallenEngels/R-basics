@@ -12,6 +12,9 @@ Git bereits installiert? Dann klicke hier: [Arbeiten mit GitHub in RStudio](http
 ## Herzlich willkommen
 Was du hier findest, ist ein kurzer Überblick über das Setup einer GitHub-Verbindung für deinem Rechner. Da mein Fokus auf der Nutzung von R liegt, werde ich dabei primär (wenn möglich) direkt mit R bzw. aus RStudio heraus arbeiten.  
 Der Vorgang unterteilt sich dabei in einige teilweise recht spezifische Schritte, die insbesondere für Menschen ohne große Erfahrung mit Kommandozeilen eine Herausforderung sein können - der große Vorteil ist jedoch, dass das Ganze prinzipiell nur ein einmal pro Computer auftretender Aufwand sein sollte, auch wenn es in der zukünftigen Nutzung teilweise deutliche Veränderungen des Workflows erfordern kann.  
+  
+## Schritt 0: Erstelle dir ein GitHub-Konto  
+Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account.  
 
 ## Schritt 1: Git  
 GitHub ist an und für sich "nur" ein Webservice, der die von Nutzern hochgeladenen Dateien speichert und präsentiert. Die Kommunikation zwischen GitHub und den Nutzern erfolgt dabei über eine Reihe an standardisierten Befehlen, die durch die **Git**-Software bereitgestellt werden. Git selbst benötigt jedoch ein Unix-Terminal, um zu funktionieren. Mac- und Linux-Nutzer sind dabei klar im Vorteil, während Windows-Nutzer ein paar Installationsschritte mehr ausführen müssen:
