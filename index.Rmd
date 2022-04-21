@@ -7,7 +7,7 @@ date: '15.04.2022'
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-Git bereits installiert? Dann klick hier: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)
+Git bereits installiert? Dann klicke hier: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)
 
 ## Herzlich willkommen
 Was du hier findest, ist ein kurzer Überblick über das Setup einer GitHub-Verbindung für deinem Rechner. Da mein Fokus auf der Nutzung von R liegt, werde ich dabei primär (wenn möglich) direkt mit R bzw. aus RStudio heraus arbeiten.  
