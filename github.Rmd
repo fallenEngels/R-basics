@@ -1,17 +1,25 @@
 ---
-title: "RStudio und GitHub - ein kurzes Tutorial"
-output: html_document
-date: '15.04.2022'
+title: "**RStudio und GitHub - ein kurzes Tutorial**"
+output: 
+  html_document: 
+    theme: darkly
+---
+Index: https://fallenengels.github.io/R-git-intro/index.html  
+
 ---
 
 ```{r setup, include=FALSE}
+library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 Git bereits installiert? Dann klicke hier: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)
 
 ## Herzlich willkommen
 Was du hier findest, ist ein kurzer Überblick über das Setup einer GitHub-Verbindung für deinem Rechner. Da mein Fokus auf der Nutzung von R liegt, werde ich dabei primär (wenn möglich) direkt mit R bzw. aus RStudio heraus arbeiten.  
 Der Vorgang unterteilt sich dabei in einige teilweise recht spezifische Schritte, die insbesondere für Menschen ohne große Erfahrung mit Kommandozeilen eine Herausforderung sein können - der große Vorteil ist jedoch, dass das Ganze prinzipiell nur ein einmal pro Computer auftretender Aufwand sein sollte, auch wenn es in der zukünftigen Nutzung teilweise deutliche Veränderungen des Workflows erfordern kann.  
+
+---
   
 ## Schritt 0: Erstelle dir ein GitHub-Konto  
 Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account.  
@@ -51,5 +59,16 @@ Herzlichen Glückwunsch! Alles sollte nun (hoffentlich) für das Arbeiten mit Gi
 ## Schritt 3: Arbeiten mit GitHub
 Nun mit Git installiert und allem soweit bereit, kann es mit dem eigentlichen Ziel dieses Vorhabens losgehen: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)  
 
-Für eine gründlichere Beleuchtung der Nutzung von R mit Git und GitHub verweise ich gerne auf: https://happygitwithr.com/index.html  
-Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alle hier aufgeführten Schritte auf meiner Maschine getestet, das ist jedoch keine Funktionsgarantie.
+Weiterführend verweise ich hier für eine gründlichere Beleuchtung der Nutzung von R mit Git und GitHub gerne auf: https://happygitwithr.com/index.html  
+
+---
+```{python, include = F}
+import os
+from datetime import datetime
+lastmodified = datetime.fromtimestamp(os.stat('github.Rmd').st_mtime)
+```
+
+Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
+  
+**Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
+**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics
