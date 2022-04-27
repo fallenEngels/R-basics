@@ -4,7 +4,7 @@ output:
   html_document: 
     theme: darkly
 ---
-Index: https://fallenengels.github.io/R-git-intro/index.html  
+Index: https://fallenengels.github.io/R-basics  
 
 ---
 

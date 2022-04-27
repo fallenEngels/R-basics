@@ -4,7 +4,7 @@ output:
   html_document: 
     theme: darkly
 ---
-Index: https://fallenengels.github.io/R-git-intro/index.html  
+Index: https://fallenengels.github.io/R-basics 
 
 ---
 
@@ -27,13 +27,13 @@ Generell ist auch [dieses DataScience-Textbuch](https://rafalab.github.io/dsbook
 #### Technische Themen
 
 + [R und RStudio - die Grundlagen]() -indev-
-+ [Dokumente erzeigen mit Markdown](https://fallenengels.github.io/R-git-intro/markdown.html)
-+ [Nutzung von GitHub aus R](https://fallenengels.github.io/R-git-intro/github.html)
-+ [Versionskontrolle mit GitHub](https://fallenengels.github.io/R-git-intro/git-applied.html)
++ [Dokumente erzeigen mit Markdown](https://fallenengels.github.io/R-basics/markdown.html)
++ [Nutzung von GitHub aus R](https://fallenengels.github.io/R-basics/github.html)
++ [Versionskontrolle mit GitHub](https://fallenengels.github.io/R-basics/git-applied.html)
 
 
 #### Textverarbeitung
-+ [Pattern Matching mit Regular Expressions](https://fallenengels.github.io/R-git-intro/regex.html) -indev-
++ [Pattern Matching mit Regular Expressions](https://fallenengels.github.io/R-basics/regex.html) -indev-
 
 ---
 ```{python, include = F}
