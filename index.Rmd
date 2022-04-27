@@ -1,0 +1,48 @@
+---
+title: "**R Basics - Index**"
+output: 
+  html_document: 
+    theme: darkly
+---
+Index: https://fallenengels.github.io/R-git-intro/index.html  
+
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Willkommen
+
+Was du hier findest, ist eine Ansammlung an hilfreichen Texten und Tutorials, die dir bei der Nutzung von R helfen sollen. Ich werde dabei auf die unterschiedlichsten Themen und Konzepte eingehen, diese auf ein grundlegendes Level herunterbrechen und versuchen, sie verständlich zu erklären. Leider wird dabei viel an Details und Komeplexität außer Acht gelassen, das soll uns hier aber nicht abhalten.   
+
+Sollte dich eine tiefergehende Diskussion zu einem bestimmten Thema interessieren, verweise ich beinahe immer auf interessante weiterführende Inhalte zu den jeweils diskutierten Konzepten.  
+Generell ist auch [dieses DataScience-Textbuch](https://rafalab.github.io/dsbook/) (englisch) von Harvard-Professor Rafael A. Irizarry eine gute Ressource für das Arbeiten mit R sowie die Durchführung grundlegender statistischer Analysen.  
+
+---
+
+## Inhalt
+
+#### Technische Themen
+
++ [R und RStudio - die Grundlagen]() -indev-
++ [Dokumente erzeigen mit Markdown](https://fallenengels.github.io/R-git-intro/markdown.html)
++ [Nutzung von GitHub aus R](https://fallenengels.github.io/R-git-intro/github.html)
++ [Versionskontrolle mit GitHub](https://fallenengels.github.io/R-git-intro/git-applied.html)
+
+
+#### Textverarbeitung
++ [Pattern Matching mit Regular Expressions](https://fallenengels.github.io/R-git-intro/regex.html) -indev-
+
+---
+```{python, include = F}
+import os
+from datetime import datetime
+lastmodified = datetime.fromtimestamp(os.stat('index.Rmd').st_mtime)
+```
+
+Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
+  
+**Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
+**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics

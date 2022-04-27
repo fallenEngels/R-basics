@@ -1,0 +1,131 @@
+---
+title: "**Dokumente erstellen mit Markdown**"
+output: 
+  html_document: 
+    theme: darkly
+---
+Index: https://fallenengels.github.io/R-git-intro/index.html  
+
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+```
+Hallo. Ich bin ein mit R erzeugtes Markdown-Dokument. Im Gegensatz zu R-Skripten kann ich nicht nur als reines Code-Dokument, sondern auch wie jetzt gerade schön aufbereitet in deinem Browser angezeigt werden. Ich kann aber auch ein Word- oder Pdf-Dokument, sowie eine ganze Reihe weiterer Dateitypen sein. Somit bin ich super für die Präsentation von Analyse-Ergebnissen und Prozess-Schritten sowie für alle möglichen R-Spielereien geeignet.  
+
+R-Markdown-Dokumente sind im Prinzip wie klassische Textdokumente anzusehen, nur dass sie zusätzlich noch mit Programmcode und dessen Ergebnissen angereichert werden können. Sie sind vom Konzept her somit grob in der Mitte zwischen klassischen Textbearbeitungsprogrammen wie Word und den standardisierten Output-Files von Statistikprogrammen wie SPSS anzusiedeln.  
+
+Markdown-FIles bieten sich hauptsächlich dazu an, Analyse-Ergebnisse in einem verständlichen und lesbaren Format zu präsentieren, und durch zusätzlich vorhandene Textabsätze in einen Kontext zu setzen. Sie sind somit besser lesbar als reiner R-Code, können aber trotzdem jederzeit durch die Lesenden repliziert, oder durch simple Anpassungen in der .rmd-Datei verändert werden. Somit lässt sich theoretisch eine komplette Hausarbeit mit Theorieteil, statistischen Auswertungen, Grafiken und Zitationen direkt in Markdown schreiben. Die daraus entstandene Datei kann sich dann jederzeit durch Ausführung der zugrundeliegenden Quelldatei (In R klassifiziert als .Rmd-Files) wieder erzeugen und somit durch Dritte validieren lassen. Eines der besten praktischen Beispiele für die Macht von R-Markdown ist vermutlich dieses bereits im Index erwähnte [DataScience-Textbuch](https://rafalab.github.io/dsbook/), das komplett in Markdown geschrieben wurde.  
+
+---
+
+## Inhalt
+[Wie lege ich ein Markdown-Dokument an?](#Setup)  
+[Coding in Markdown](#Code)  
+[Formatierung in Markdown](#Format)  
+
+## Wie lege ich ein Markdown-Dokument an? {#Setup}
+
+Um gleich zu Beginn das Wichtigste festzuhalten: Markdown ist an sich *technisch gesehen* als eigenständige Programmiersprache zu verstehen, die mit R nichts zu tun hat. Deswegen können in R gestartete Dokumente nicht einfach so in Markdown überführt werden, sondern müssen von Beginn an als Markdown-Dokument gestartet werden. Glücklicherweise lässt sich dies in RStudio einfach über `File -> New File -> R Markdown` bewerkstelligen. Wenn du dies einmal versuchst, wirst du feststellen, dass RStudio ein großes Fenster mit einer Reihe an möglichen Ziel-Dateiformaten öffnet. Du brauchst nicht erschrecken, die hier festgelegte Auswahl kannst du später jederzeit gemeinsam mit einer Reihe weiterer Optionen ändern.  
+
+Das so erstellte Markdown-Dokument kommt bereits beladen mit Beispielen, wie man bestimmte Ziele erreicht.
+Der tatsächliche Output als word-, pdf-, html-, ...-Dokument wird dabei jedoch erst dann erzeugt wenn der ***Knit***-Knopf in der Tool-Leiste oben (oder alternativ die Tastenkombination *Strg-Shift-K*) gedrückt wird. Dann Geschriebene wird dann als R-Markdown-Datei und als der gewählte Dateityp an einem im Vorhinein festgelegten Ort, oder dem aktuellen working directory gespeichert bzw. erzeugt.
+
+
+## Coding in Markown{#Code}
+
+Dir wird vielleicht auffallen, dass sich die in der RStudio-Kopfzeile verfügbaren Aktionen deutlich zwischen einem R-Script und einem Markdown-Dokument unterscheiden. Neben dem eben erwähnten `knit`-Knopf ist dabei auch der `insert`-Knopf von besonderer Bedeutung:  
+Wie eben erwähnt, ist Markdown quasi eine eigenständige Sprache. Die große Macht von der in RStudio implementierten Markdown-Version liegt jedoch in der Integration anderer Programmiersprachen. So kannst du über den `insert`-Knopf einen so genannten **Code-Chunk** in einer weiten Reihe an Programmiersprache hinzufügen (alternativ kannst du die Struktur eines Code-Chunks auch von Hand schreiben):  
+```{r example, echo = F}
+cat("```{r}
+HIER KÖNNTE IHR CODE STEHEN
+```")
+
+```
+
+Die drei "\`" legen dabei **Anfang und Ende des Code-Blocks** fest, während `{r}` die jeweils verwendete Programmiersprache angibt. Dabei kann hinter die Sprache jederzeit noch ein **Block-Label** sowie **blockspezifische Optionen** gesetzt werden: `{r Benötigte Libraries, echo = FALSE}`. Das Hinzufügen eines Block-Labels ist dabei nützlich, um eine kurze Beschreibung des Blockinhaltes zu haben. Es ist dabei jedoch zu beachten, dass R-Markdown keine zwei Codeblöcke mit identischem Namen zulässt!  
+
+Neben Code-Blöcken können jedoch auch generelle Formel-Blöcke hinzugefügt werden. Diese funktionieren dabei nicht über drei \`, sondern werden durch zwei \$ an Anfang und Ende der Formel begrenzt. Der Code \$ \$ E = mc^2 \$ \$ (ohne die Leerzeichen zwischen den Dollar-Symbolen) wird so zu:  
+$$E = mc^2$$  
+Es muss jedoch nicht immer ein separater Block sein. Will man beispielsweise eine kurze Formel in der Mitte eines Fließtextes anzeigen oder die Ausprägung einer bestimmten Variable referenzieren, ist das auch ohne Probleme möglich. In diesem Fall wird an Anfang und Ende des Befehls nur eins der jeweiligen Begrenzungszeichen gestellt: \`​r CODE\` für Code (1+1 = `r 1+1`) und \$ für Formeln ($1+1 = x$) (für mehr Informationen über Mathematik-Formel-Syntax verweise ich einfach mal [hierauf](https://rpruim.github.io/s341/S19/from-class/MathinRmd.html)).   
+
+### Wichtige Randnotiz zum Knitting-Prozess
+Der Knitting-Prozess wird von RStudio automatisch im Hintergrund auf Basis der im Dokument vorhandenen Code-Blöcke und der zu Seitenbeginn festgelegten Output-Art durchgeführt. Wichtig dabei ist jedoch, dass Markdown-knitting **linear von Oben nach Unten** durchgeführt wird. Werden also für einen späteren Code-Chunk bestimmte Packages und/oder Variablen benötigt, so sollten diese auch vor der erstmaligen Benutzung erstellt worden sein. Wichtig ist auch, dass das Knitting in einem separaten, eigens dafür gestarteten R-Workspace passiert. Markdown kann und wird also **nicht auf Dateien/Variablen in deinem aktuellen R-Workspace zugreifen, sondern sie selbst noch einmal laden bzw. erstellen!** Dies kann insbesondere bei komplexen Bearbeitungsprozessen und großen Quelldateien wichtig werden und den knitting-Prozess in die Länge ziehen!
+
+### Möglichkeiten mit Code
+Über diese Code-Blöcke und deren Optionen können so die unterschiedlichsten Dinge angezeigt werden. Von einfachen Druck-Befehlen wie oben über Tabellen und Plots, bis hin zu den komplexesten Analyse-Ergebnissen: Was immer in R bzw. der jeweils ausgewählten Sprache durch Code erzeugbar ist, lässt sich auch in Markdown wiedergeben. So lassen sich zum Beispiel auch ggplot-Grafiken einfach einbinden:
+```{r Libraries, include=F}
+library(tidyverse)
+library(gapminder)
+```
+```{r Plot, echo = F, fig.width=12}
+data(gapminder)
+filter(gapminder, year %in% c(1952, 1982,  2007)) %>%
+  ggplot(aes(gdpPercap, lifeExp, col = continent)) +
+  geom_point() +
+  scale_x_continuous(trans='log2') +
+  facet_grid(continent~year) + 
+  labs(x = "GDP per capita", y = "life expectancy")
+```
+
+Wie ihr vielleicht gemerkt habt, könnt ihr hier im Gegensatz zu dem ersten Beispiel oben nur das Ergebnis sehen - Der Code zu dessen Erzeugung bleibt euch verborgen. Das erreicht man über die bereits angesprochenen Block-Eigenschaften. Der im obrigen Beispiel verwendete Befehl `echo` regelt die Wiedergabe von geschriebenem Code in den Ergebnissen. Das Pendant dazu ist der Befehl `eval`, der die Berechnung von Ergebnissen regelt. Eine Stufe extremer ist der Befehl `include`, der nicht nur den Code, sondern auch das Ergebnis versteckt. Das habe ich hier genutzt, um das Laden der ggplot- und gapminder-libraries zu verbergen.  
+Um es an einem Beispiel zu verdeutlichen:  
+
+* Ohne Optionen:
+```{r}
+1+1
+```
+* Mit `echo = FALSE` (Nur Output):
+```{r, echo = F}
+1+1
+``` 
+* Mit `eval = FALSE` (Nur Input):
+```{r, eval = F}
+1+1
+```
+* Mit `include = FALSE` (Wie erwartet wird nichts angezeigt):
+```{r, include = F}
+1+1
+```
+
+Die beste Nutzung von `echo` liegt dabei vermutlich im Verstecken komplexerer oder längerer Code-Schnipsel oder Stil-Optionen in der grafischen Aufbereitung für "offiziellere" Dokumente - für den Fall, dass jemand tatsächlich eine komplette Forschungsarbeit direkt in Markdown schreiben will. `eval` dient eher zur Präsentation spezifischer Befehle (wie beispielsweise Filtervorgängen) und `include` kann dafür verwendet werden, wichtige Prozesse zu verbergen, die Lesende meist nicht direkt interessieren: Das Laden von Packages und Variablen, Recodierungen, etc. ...
+
+### Wichtige Codeblock-Optionen in der Kurz-Übersicht:
+
+| Option  | Resultat |  
+|:-|:-------------|
+| echo    | Regelt, ob nur das Ergebnis (FALSE) oder auch der geschriebene Code (TRUE) im Markdown-Dokument erscheinen soll.|  
+| include | Regelt, ob der gesamte Codeblock im Ergebnisdokument angezeigt (TRUE) oder versteckt (FALSE) werden soll.       |  
+| eval    | Regelt, ob der Code nur angezeigt (FALSE) oder auch ausgeführt (TRUE) werden soll.                              |  
+| error   | Markdown bricht standardmäßig bei einem Fehler den Erstellprozess ab (FALSE). mit error = TRUE wird die Dokument-Erstellung dennoch ausgeführt und der aufgetretene Fehler an Stelle eines Ergebnisses übernommen. |
+| fig.   | Zur Regelung von Bildüberschriften (fig.cap) und -größen (fig.width bzw. fig.height).                            |   
+Es ist jedoch festzuhalten, dass das hier keine vollständige Liste ist und je nach Situation auch andere Optionen nützlich sein können.  
+
+## Formatierung in Markdown{#Format}
+Wie ihr im Verlauf dieser Seite sicher schon feststellen konttet, bietet Markdown eine große Reihe an Formatierungsmöglichkeiten, die von simplen Veränderungen wie *kursiver Schrift* bis hin zu ganzen Tabellen (s.o.) reichen. Die Aufzählung aller möglichen Formatierungsmöglichkeiten würde den Rahmen dieser Einführung sprengen, ich empfehle jedoch jedem, den das Arbeiten mit Markdown interessiert einen Blich auf das "R Markdown Cheat Sheet" (direkt aus RStudio aufrufbar, unter `Help -> Cheatsheets`).  
+
+Es gibt jedoch auch Markdown-spezifische Befehle für Codeblöcke. Insbesondere die Funktion `knitr::kable()` ist hierbei nennenswert, da sie ein mächtiges Werkzeug zur Präsentation generierter Datentabellen ist (für Hilfe und Demonstrationen siehe [hier](https://bookdown.org/yihui/rmarkdown-cookbook/kable.html)).  
+
+Weiterführend verweise ich hier außerdem auf https://www.markdowntutorial.com/ als interaktives Tutorial für die unterschiedlichsten Formatierungsarten in Markdown, sowie auf [dieses Cheat Sheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet), das viele der Formatmöglichkeiten in base-Markdown beschreibt.  
+Ich will dabei jedoch noch einmal darauf hinweisen, dass in R eine abgewandelte Version von Markdown implementiert ist. Einige der in diesem Sheet angesprochenen Formatierungen sind deshalb unter Umständen nicht 1:1 übernehmbar. Für eine detaillierte Auflistung und Beschreibung der R-Markdown-Features empfehle ich einen Blick in [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/).  
+
+Neben den Inhalten eines Markdown-Dokumentes lässt sich jedoch auch der globale Stil der im Ergebnis erzeugten Seite bearbeiten. Diese Veränderungen passieren dabei im *Header* des jeweiligen Dokumentes. Eine Ausführung über alle Details dieses Prozesses führt hierbei jedoch zu weit, weshalb ich hierfür auf den eben erwähnten "Definitive Guide" verweise.  
+Randnotiz: Im Gegensatz zu Markdown-Text oder R-Text sind die Informationen im Header Zeilen- und Indentierungs-sensitiv, die exakte Positionierung von Subargumenten in Relation zum Hauptargument spielt also eine bedeutende Rolle, sollte es zu Fehlermeldungen kommen!  
+
+Wenn du dich fragst, wie du auch solche Buch-artigen Dokumente wie die im Verlauf dieser Erklärung erwähnten erstellen kannst, dann schau dir mal das R-Package [bookdown](https://www.bookdown.org/) und das dazugehörige [bookdown-Buch](https://bookdown.org/yihui/bookdown/) an.  
+
+Generell empfehle ich auch immer jedem, einfach mal herumzuprobieren und zu schauen, was sich ergibt. Auch ein Blick in die teilweise auf GitHub verfügbaren Quelldateien der hier angesprochenen Bücher und Dokumente (oder gar dieses Dokumentes) kann immer beim Verständnis helfen.  
+
+---
+
+```{python, include = F}
+import os
+from datetime import datetime
+lastmodified = datetime.fromtimestamp(os.stat('markdown.Rmd').st_mtime)
+```
+
+Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
+  
+**Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
+**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics
