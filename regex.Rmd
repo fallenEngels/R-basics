@@ -1,10 +1,10 @@
 ---
-title: "**RStudio und GitHub - ein kurzes Tutorial**"
+title: "**Pattern Matching mit Regular Expressions**"
 output: 
   html_document: 
     theme: darkly
 ---
-Index: https://fallenengels.github.io/R-git-intro/index.html  
+Index: https://fallenengels.github.io/R-basics
 
 ---
 
@@ -13,7 +13,6 @@ library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
--- indev -- 
 
 ---
 ```{python, include = F}
@@ -25,4 +24,4 @@ lastmodified = datetime.fromtimestamp(os.stat('regex.Rmd').st_mtime)
 Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
   
 **Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
-**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics
+**.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/regex.Rmd

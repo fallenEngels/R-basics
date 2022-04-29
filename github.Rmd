@@ -15,49 +15,90 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Git bereits installiert? Dann klicke hier: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)
 
-## Herzlich willkommen
-Was du hier findest, ist ein kurzer Überblick über das Setup einer GitHub-Verbindung für deinem Rechner. Da mein Fokus auf der Nutzung von R liegt, werde ich dabei primär (wenn möglich) direkt mit R bzw. aus RStudio heraus arbeiten.  
-Der Vorgang unterteilt sich dabei in einige teilweise recht spezifische Schritte, die insbesondere für Menschen ohne große Erfahrung mit Kommandozeilen eine Herausforderung sein können - der große Vorteil ist jedoch, dass das Ganze prinzipiell nur ein einmal pro Computer auftretender Aufwand sein sollte, auch wenn es in der zukünftigen Nutzung teilweise deutliche Veränderungen des Workflows erfordern kann.  
+## Herzlich willkommen  
+Was du hier findest, ist ein kurzer Überblick über das Setup einer GitHub-Verbindung für deinem Rechner. Es gibt dabei grundlegend zwei unterschiedliche Wege, wie du deinen lokalen PC mit GitHub verbinden kannst. Die Wahl des Weges liegt dabei bei dir - die Desktop-Client-Version ist dabei bedeutend einfacher zu installieren, schränkt dich aber in der Benutzung auf diesen Client ein. DIe RStudio-Version ist etwas komplexer in der Installation, erlaubt dir aber die Nutzung von GitHub direkt aus RStudio sowie über alle möglichen sonstigen Programme.  
+Die Entscheidung liegt bei dir. Wenn du nur einmal herumprobieren willst, rate ich zur Client-Version - für Leute, die jedoch ernsthaft mit GitHub arbeiten wollen, empfehle ich die komplexere Installations-Variante. Der große Vorteil des zweiten Weges ist jedoch, dass das Ganze prinzipiell nur ein einmal pro Computer auftretender Aufwand sein sollte, auch wenn es in der zukünftigen Nutzung teilweise deutliche Veränderungen des Workflows erfordern kann.  
+
+## Inhalt
+[Intro: Warum Git/GitHub](#Explainer)  
+[Variante 1: GitHub über Desktop-Client](#Client)  
+[Variante 2: Lokale Git-Installation und RStudio-Integration](#Install)  
 
 ---
+
+## Intro: Warum Git/GitHub? {#Explainer}  
+
+Git ist ein Programm, das benutzt werden kann, um Veränderungen an Dateien (insb. Code, aber auch andere) zu speichern und zu tracken. Die grundlegende Idee hinter dieser Art der **Versionskontrolle** ist, dass Veränderungen an Dateien jederzeit gebündelt als "Checkpoints" abgespeichert werden können, um bspw. bei Problemen zu früheren Versionen zurückkehren zu können. Da durch dieses Programm Änderungen an jeder Dokument-Zeile individuell verfolgt werden können, bietet sich Git insbesondere für kooperative Dokumente an, da so mehrere Nutzer gleichzeitig denselben Code bearbeiten können, ohne dass es zu Konflikten kommt.  
+
+GitHub baut auf dieses Grundprinzip weiter auf. GitHub ist eine von Microsoft betriebene Web-Plattform, mit der alle in Git abgespeicherten Änderungen synchronisiert werden können. Dies ermöglicht es einerseits, von mehreren Computern aus an dem selben Projekt zu arbeiten, und ermöglicht andererseits das **Teilen von Quellcodes** für Programme und Funktionen mit anderen Nutzern. Insbesondere in den Wissenschaften können so beispielsweise Untersuchungs-Vorgänge öffentlich geteilt werden, was die Reproduzierbarkeit für andere Forscher deutlich erleichtert.  
+Auch im professionellen Bereich findet GitHub jedoch Verwendung: So finden sich eine große Zahl professioneller Produkte, die sich dem **Open Source**-Gedanken verschrieben haben (z.B. die Firefox Browser-Engine [Gecko](https://github.com/mozilla/gecko-dev) oder die Social Media Plattform [Mastodon](https://github.com/mastodon/mastodon)) auf GitHub oder ähnlichen Plattformen, wo jeder Nutzer den zugrundeliegenden Code beobachten und nach Fehlern oder versteckten Programmen durchsuchen kann.
+
+Wie bereits eben erwähnt, ist GitHub dabei nur eine der möglichen Plattformen für den Aufbau einer solchen Versionskontrolle. Da es die am weitesten verbreitete Plattform (und zusätzlich in der Nutzung gratis) ist, werde ich mich im Rahmen dieser Seiten nur auf GitHub beziehen, alles Genannte sollte jedoch in leichter Abwandlung auch auf andere Services oder sogar privat betriebene Versionskontroll-Server zutreffen, solange sie ebenfalls auf Git aufbauen.
+
+---
+
+## Variante 1: GitHub über Desktop-Client {#Client}
+
+### Schritt 0: Erstelle dir ein GitHub-Konto  
+Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account (bzw. eine Zugriffsmöglichkeit auf den gewählten Dienst).  
+
+### Schritt 1: Installiere dir einen Desktop-Client  
+Bei dieser Nutzungsvariante passiert die komplette Interaktion mit GitHub über einen installierten Desktop-Client. Großer Vorteil dieser Variante ist es, dass alle Schritte der Software-Installation und Authentifizierung automatisch von diesem Client übernommen werden. Nachteil dabei ist jedoch, dass man **nur** über diesen CLient mit GitHub interagieren kann, und somit bspw. nicht direkt in RStudio daran erinnert wird, seine Änderungen über Git abzuspeichern und mit GitHub zu synchronisieren.  
+
+Es gibt dabei eine Reihe an Desktop-Clients, die sich für diese Art der Nutzung anbieten. Der am weitesten verbreitete wird zweifellos der offiziell von GitHub veröffentlichte [GitHub-Desktop-Client](https://desktop.github.com/) sein, ich persönlich bin jedoch auch großer Freund des [GitKraken-Clients](https://www.gitkraken.com/). Die Wahl des Clients bleibt dabei jedoch komplett dir überlassen, prinzipiell sollte es keine bedeutenden Unterschiede in der Arbeitsweise geben.
+
+### Schritt 2: Arbeiten mit GitHub  
+Ist der Client installiert, und du dort mit deinem GitHub-Account angemeldet, kann es mit dem eigentlichen Ziel dieses Vorhabens losgehen: [Arbeiten mit GitHub](https://fallenengels.github.io/R-git-intro/applied.html)  
+
+Adaptiert aus: https://towardsdatascience.com/the-easiest-github-tutorial-ever-4a3aa0396039
+
+---
+
+##Variante 2: Lokale Git-Installation und RStudio-Integration {#Install}
   
-## Schritt 0: Erstelle dir ein GitHub-Konto  
-Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account.  
+### Schritt 0: Erstelle dir ein GitHub-Konto  
+Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account (bzw. eine Zugriffsmöglichkeit auf den gewählten Dienst).  
 
-## Schritt 1: Git  
-GitHub ist an und für sich "nur" ein Webservice, der die von Nutzern hochgeladenen Dateien speichert und präsentiert. Die Kommunikation zwischen GitHub und den Nutzern erfolgt dabei über eine Reihe an standardisierten Befehlen, die durch die **Git**-Software bereitgestellt werden. Git selbst benötigt jedoch ein Unix-Terminal, um zu funktionieren. Mac- und Linux-Nutzer sind dabei klar im Vorteil, während Windows-Nutzer ein paar Installationsschritte mehr ausführen müssen:
+### Schritt 1: Git  
+GitHub ist an und für sich wie erwähnt "nur" ein Webservice, der die von Nutzern hochgeladenen Dateien speichert und präsentiert. Die Kommunikation zwischen GitHub und den Nutzern erfolgt dabei über eine Reihe an standardisierten Befehlen, die durch die **Git**-Software bereitgestellt werden. Git selbst benötigt jedoch ein Unix-Terminal, um zu funktionieren. Mac- und Linux-Nutzer sind dabei klar im Vorteil, während Windows-Nutzer ein paar Installationsschritte mehr ausführen müssen:
 
-### Git auf Linux/Unix  
+#### Git auf Linux/Unix  
 Je nach gewählter Distribution sollte sich Git einfach über den jeweils mitgelieferten Package-Manager installieren lassen. Eine Übersicht für die bekannteren Distros: https://git-scm.com/download/linux  
 
-### Git auf MacOS  
+#### Git auf MacOS  
 Mit etwas Glück ist Git bereits auf dem Mac installiert. Um dies zu überprüfen, öffne die Terminal-Applikation und gib `git --version` ein. Erscheint eine Versionsnummer, so ist Git bereits installiert. Sollte Git jedoch nicht installiert sein, so *müsste* MacOS eigentlich automatisch nachfragen, ob es Git installieren soll.  
 
-### Git auf Windows
-Da Windows im Gegensatz zu Linux und MacOS keine Unix-Integration besitzt, muss neben Git auch noch ein Unix-Terminal installiert werden. Glücklicherweise kommt Git bereits von sich aus mit einem Terminal-Interface (**Git Bash**), das sich auch direkt in RStudio nutzen lässt.
+#### Git auf Windows  
+Da Windows im Gegensatz zu Linux und MacOS keine Unix-Integration besitzt, muss neben Git auch noch ebensolches Terminal installiert werden. Glücklicherweise kommt Git bereits von sich aus mit einem Terminal-Interface (**Git Bash**), das sich auch direkt in RStudio nutzen lässt.
 Deshalb muss Git auch mit einen Installer von der offiziellen Webseite (https://git-scm.com/) installiert werden.  
 
-#### Installationshinweis  
-Git wird während des Installationsprozesses nach einem Standard-Editor fragen. Vom standardmäßig ausgewählten Editor (**VIM**) rate ich jedoch jedem ab, der nicht bereits Erfahrung mit **VI** oder **VIM** besitzt! Sollte dir keiner der aufgelisteten Editoren bekannt vorkommen, so rate ich zu **Nano** als wohl simpelsten der aufgelisteten Editoren, oder aus persönlicher Präferenz meinerseits zu **Notepad++** (falls du Notepad++ installiert haben solltest). Alle weiteren Installationsschritte können für den normalen Gebrauch auf den Standardeinstellungen belassen werden.  
+##### Installationshinweis  
+Git wird während des Installationsprozesses nach einem Standard-Editor fragen. Vom standardmäßig ausgewählten Editor (**VIM**) rate ich jedoch jedem ab, der nicht bereits Erfahrung mit **VI** oder **VIM** besitzt! Sollte dir keiner der aufgelisteten Editoren bekannt vorkommen, so rate ich zu **Nano** als wohl simpelsten der aufgelisteten Editoren, oder aus persönlicher Präferenz meinerseits zu **Notepad++** (falls du Notepad++ installiert haben solltest). Prinzipiell ist die Wahl hier jedoch egal. Der Editor kommt nur im Fall von Fehlermeldungen zum Einsatz, die für die Git-Nutzung im Rahmen dieser Seiten nicht auftreten sollten.  
 
-### Git und Git Bash in RStudio integrieren  
-Eigentlich sollte RStudio Git direkt nach der Installation erkennen können. Ist dies nicht der Fall, so gehe in RStudio zu `Tools -> Global Options -> GIT/SVN` und überprüfe, ob die Git-Executable erkannt wird. Sollte sie nicht erkannt werden, so findet sie sich im bei der Git-Installation ausgewählten Zielordner: `angegebenerOrdner/bin/git.exe`.  
+Alle weiteren Installationsschritte können für den normalen Gebrauch auf den Standardeinstellungen belassen werden.  
 
-## Schritt 2: Stelle dich Git vor
+#### Git und Git Bash in RStudio integrieren  
+Eigentlich sollte RStudio Git direkt nach der Installation erkennen können. Ist dies nicht der Fall, so gehe in RStudio zu `Tools -> Global Options -> GIT/SVN` und überprüfe, ob die Git-Executable erkannt wird. Sollte sie nicht erkannt werden, so findet sie sich im bei der Git-Installation ausgewählten Zielordner: `angegebenerOrdner/bin/git.exe`. Möglicherweise hilft es auch, RStudio einmal neu zu starten, sollte es während der Git-Installation geöffnet gewesen sein.  
+
+### Schritt 2: Stelle dich Git vor  
 Zwar könnte man nun alle Konfigurationen über Git Bash durchführen, dies ist jedoch (zumindest in meinen Augen) für den normalen Nutzer ein unintuitiver und fehleranfälliger Prozess. Glücklicherweise lässt er sich in R durch die Nutzung von Packages wie `usethis` deutlich vereinfachen.  
-Nach dem Installieren und Laden des `usethis`-Packages kann die Git-Configdatei mit dem Befehl `edit_git_config()` direkt aus der R-Konsole aufgerufen werden. Füge in dieser Datei deinen (realen oder imaginären) Namen sowie die Mailadresse deines GitHub-Accounts wie folgt ein:  
+Nach dem Installieren und Laden des `usethis`-Packages kann die Git-Configdatei mit dem Befehl `edit_git_config()` direkt aus der R-Konsole aufgerufen werden. Füge in dieser Datei deinen (realen oder imaginären) Namen sowie die Mailadresse deines GitHub-Accounts wie folgt ein (der angegebene Name wird dabei in zukünftigen commits referenziert, du kannst also zum Beispiel als Name angeben, von welchem Gerät der Commit passiert):  
 ```
 [user]
 	name = Dein Name
 	email = github@mailadresse.com
 ```  
-Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen, und die Änderungen mit GitHub zu synchronisieren. Um diese Änderungen mit GitHub synchronisieren zu können, muss noch eine Form der Verifizierung hinterlegt werden - wenn es sich nur um Name und Mailadresse handeln würde, könnte ja quasi jeder Dritte in deinem Namen Commits erstellen.  
-Auch hier kann das `usethis`-Package dein Leben bedeutend angenehmer machen: Ein Ausführen der Funktion `create_github_token()` sollte dich direkt auf die richtige Webseite leiten, um dir ein sogenanntes Personal Access Token zu generieren. Je nach individuellen VOrlieben kannst du hierbei festlegen, ob das Token nur eine begrenzte Gültigkeit haben (nützlich bspw. für das Arbeiten an PCs anderer Leute) oder unbegrenzt gültig sein soll, und die mit dem Token verbundenen Rechte bearbeiten. Nach Abschluss dieses Prozesses sollte dir GitHub dein Token im Format `ghp_...` präsentieren. Kopiere dir dieses Token für die nächsten Schritte, du wirst es nie wieder sehen können, sobald du die Seite schließt!  
+Jetzt ist Git bereit, als lokale Versionskontrolle zu dienen, und die Änderungen mit GitHub zu synchronisieren. Um diese Änderungen mit GitHub synchronisieren zu können, muss jedoch noch eine weitere Form der Verifizierung hinterlegt werden - wenn es sich nur um Name und Mailadresse handeln würde, könnte ja quasi jeder Dritte in deinem Namen Commits erstellen.  
+
+Auch hier kann das `usethis`-Package dein Leben bedeutend angenehmer machen: Ein Ausführen der Funktion `create_github_token()` sollte dich direkt auf die richtige Webseite leiten, um dir ein sogenanntes Personal Access Token zu generieren. Je nach individuellen VOrlieben kannst du hierbei festlegen, ob das Token nur eine begrenzte Gültigkeit haben (nützlich bspw. für das Arbeiten an PCs anderer Leute) oder unbegrenzt gültig sein soll, und die mit dem Token verbundenen Rechte bearbeiten (im Normalfall nicht notwendig). Nach Abschluss dieses Prozesses sollte dir GitHub dein Token im Format `ghp_...` präsentieren. **Kopiere dir dieses Token für die nächsten Schritte, du wirst es nie wieder sehen können, sobald du die Seite schließt!**  
+
 Dieses Token kannst du nun durch Ausführen der gemeinsam mit `usethis` installierten Funktion `gitcreds::gitcreds_set()` direkt aus R auf deinem PC hinterlegen. Mit der Funktion `git_sitrep()` kannst du überprüfen, ob dein Token richtig hinterlegt wurde.  
+Großer Vorteil dieser Installationsweise ist nun, dass im Gegensatz zu der Client-Installation dein gesamter PC für die Nutzung mit GitHub bereit ist. SOlltest du also in Zukunft noch andere Programme mit direkter GitHub-Verbindung installieren (bspw. VS Code), so sollten diese das selbe Access Token nutzen können.  
+
 Herzlichen Glückwunsch! Alles sollte nun (hoffentlich) für das Arbeiten mit GitHub bereit sein.
 
-## Schritt 3: Arbeiten mit GitHub
-Nun mit Git installiert und allem soweit bereit, kann es mit dem eigentlichen Ziel dieses Vorhabens losgehen: [Arbeiten mit GitHub in RStudio](https://fallenengels.github.io/R-git-intro/applied.html)  
+### Schritt 3: Arbeiten mit GitHub  
+Nun mit Git installiert und allem soweit bereit, kann es mit dem eigentlichen Ziel dieses Vorhabens losgehen: [Arbeiten mit GitHub](https://fallenengels.github.io/R-git-intro/applied.html)  
 
 Weiterführend verweise ich hier für eine gründlichere Beleuchtung der Nutzung von R mit Git und GitHub gerne auf: https://happygitwithr.com/index.html  
 
@@ -71,4 +112,4 @@ lastmodified = datetime.fromtimestamp(os.stat('github.Rmd').st_mtime)
 Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
   
 **Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
-**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics
+**.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/github.Rmd

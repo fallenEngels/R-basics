@@ -13,6 +13,15 @@ library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Anleitung, um Git und zu installieren und mit RStudio zu verbinden: [klicke hier](https://fallenengels.github.io/R-git-intro/github.html)
+
+## Inhalt
+[Wie lege ich ein Markdown-Dokument an?](#Setup)  
+[Coding in Markdown](#Code)  
+[Formatierung in Markdown](#Format)  
+
+---
+
 ## Projektstart  
 Für die Integration von GitHub mit RStudio-Projekten lassen sich zwei generelle Ansätze unterscheiden. Dabei ist es **zwingend** notwendig, dass es sich um ein RStudio-*Projekt* und nicht nur eine Ansammlung einzelner Script-Dateien handelt, da die Git-Integration nach den durch Projekte erstellten *.rproj*-Dateien ausschau hält.  
 
@@ -67,4 +76,4 @@ lastmodified = datetime.fromtimestamp(os.stat('git-applied.Rmd').st_mtime)
 Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
   
 **Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
-**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics
+**.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/git-applied.Rmd
