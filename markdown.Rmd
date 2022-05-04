@@ -12,6 +12,7 @@ Index: https://fallenengels.github.io/R-basics
 library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 Hallo. Ich bin ein mit R erzeugtes Markdown-Dokument. Im Gegensatz zu R-Skripten kann ich nicht nur als reines Code-Dokument, sondern auch wie jetzt gerade schön aufbereitet in deinem Browser angezeigt werden. Ich kann aber auch ein Word- oder Pdf-Dokument, sowie eine ganze Reihe weiterer Dateitypen sein. Somit bin ich super für die Präsentation von Analyse-Ergebnissen und Prozess-Schritten sowie für alle möglichen R-Spielereien geeignet.  
 
 R-Markdown-Dokumente sind im Prinzip wie klassische Textdokumente anzusehen, nur dass sie zusätzlich noch mit Programmcode und dessen Ergebnissen angereichert werden können. Sie sind vom Konzept her somit grob in der Mitte zwischen klassischen Textbearbeitungsprogrammen wie Word und den standardisierten Output-Files von Statistikprogrammen wie SPSS anzusiedeln.  
@@ -24,6 +25,8 @@ Markdown-FIles bieten sich hauptsächlich dazu an, Analyse-Ergebnisse in einem v
 [Wie lege ich ein Markdown-Dokument an?](#Setup)  
 [Coding in Markdown](#Code)  
 [Formatierung in Markdown](#Format)  
+
+---
 
 ## Wie lege ich ein Markdown-Dokument an? {#Setup}
 
@@ -128,4 +131,4 @@ lastmodified = datetime.fromtimestamp(os.stat('markdown.Rmd').st_mtime)
 Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
   
 **Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
-**GitHub-Repo mit .Rmd-Dateien dieser Dokumente:** https://github.com/fallenEngels/R-basics
+**.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/markdown.Rmd
