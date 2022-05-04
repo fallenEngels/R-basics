@@ -13,6 +13,68 @@ library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Insbesondere im Kontext des *Natural Lanzage Proccesings* ist immer wieder die manuelle Inspektion und Bearbeitung von Text-Strings relevant - sei es, um beispielsweise Artefakte in den Quelldaten zu bereinigen, oder den Datensatzauf Basis bestimmter Worte zu filtern.  
+Um solche Aufgaben in R zu erleichtern, sind zwei Dinge von besonderer Bedeutung: Einerseits das Wissen um die Funktionsweise der R-Befehle `grep()`,`grepl()`, `regexpr()` und `gsub()`, und andererseits der korrekte Umgang mit **Regular Expressions** in der Nutzung dieser Funktionen. Im Folgenden werden beide Aspekte kurz ausgeführt und veranschaulicht.
+
+## Inhalt
+[Grep, grepl, gsub und Regexpr](#Funct)  
+[Regular Expressions](#Regex)  
+
+---
+
+## Grep, Grepl, Gsub und Regexpr {#Funct}  
+Die hier beschriebenen Funktionen sind nicht die einzigen Funktionen, mit denen sich Strings auf komplexe Art und Weise bearbeiten oder analysieren lassen. Da sie jedoch in base-R ohne das Laden von Packages funktionieren, und viele der komplexeren Package-Funktionen (bspw. des `stringr`-Packages) nach ähnlichen Prinzipien funktionieren, will ich hier diese Funktionen explizit hervorheben.  
+  
+#### Grep, grepl und regexpr: Pattern matching  
+Die Funktionen `grep` und `grepl` können benutzt werden, um nach dem Vorkommen bestimmter *patterns* in Daten zu suchen. Der einzige Unterschied zwischen beiden Funktionen liegt dabei in der Ergebnisausgabe: Während `grep` die Listenposition aller mit dem *pattern* übereinstimmenden (oder nicht-übereinstimmenden, sollte es mit der Option `invert = TRUE` ausgeführt worden sein) Einträge zurückgibt, ist das Ergebnis von `grepl` eine logische Liste von gleicher Länge wie der ursprüngliche Vektor, mit `TRUE` bei Auftauchen des *patterns* und `FALSE` bei nicht-Auftauchen des Patterns.  
+DIe `regexpr`-Funktion geht dabei sogar noch einen Schritt weiter: Neben der Rückgabe einer quasi-logischen Aussage über die Existenz des Patterns analog zu `grepl` (mit 1 bei Existenz und -1 bei Nicht-Existenz), gibt die `regexpr`-Funktion zusätzlich noch die Startposition des Suchkriteriums innerhalb der identifizierten Strings sowie generelle Informationen über das durchsuchte Element an.
+Um das Ganze zu veranschaulichen:  
+```{r grep_vis}
+food <- c("banana", "pear", "apricot", "strawberry", "coconut", "mango", "lemon", "tomato")
+# search for letter "e" in all items in food-list:
+grep("e", food)
+grepl("e", food)
+regexpr("e", food)
+```
+Die Frage, welche der Funktionen angebracht ist, unterscheidet sich dabei je nach Anwendungszweck. Für die Suche nach bestimmten Inhalten in einem größeren Textstring bietet sich `regexpr`an, sobald es jedoch um Analysen mehrere Strings bspw. in einer Liste geht, sind die anderen Funktionen überlegen.  
+Da `grep` nur die positiven Einträge zurückgibt, mag es für den Nutzer dabei verständlicher zu bearbeiten sein, als jedes Mal den `grepl`-Output nach `TRUE`-Werten abzusuchen. Andererseits funktionieren bestimmte Filter-Befehle nur mit logischen Angaben. Wer also beispielsweise dieses *pattern matching* innerhalb der `dplyr`-`filter()`-Funktion benutzen will, muss zwingend `grepl()`benutzen.  
+
+#### Gsub: Pattern replacement  
+Im Gegensatz zu `grep`, das rein analytisch arbeitet, lassen sich mit `gsub` die Quelldaten verändern. Neben dem von `grep` bekannten *pattern* ist dabei noch ein *replacement* anzugeben, mit dem das jeweilige pattern ersetzt werden soll. Standardmäßig ersetzt `gsub` dabei jedes einzelne auffindbare Auftreten des spezifizierten patterns - soll nur das erste gefundene pattern ersetzt werden, kann die Funktion `sub()` verwendet werden:  
+```{r gsub_vis}
+# find "an" in "banana" and replace with "Tannenbaum":
+gsub("an", "Tannenbaum", "banana")
+sub("an", "Tannenbaum", "banana")
+```
+Die große Macht dieser drei Funktionen liegt dabei daran, dass die jeweiligen *patterns* nicht auf einzelnen, explizit definierte Werte (z.B. oben "an" bzw. "e") festgelegt sein müssen. Stattdessen lassen sich mit Hilfe von *Regular Expressions* auch variable Kosntrukte als patterns festlegen, wodurch sich die Macht der Funktionen noch einmal deutlich erhöht.
+
+## Regular Expressions {#Regex}
+Als *Regular Expression* werden spezielle Symbole verstanden, die innerhalb eines Textstings nicht als reiner Text, sondern als Suchkriterium für andere Textinhalte verwendet werden. Wer schon einmal versucht hat, sein `working directory` durch das Kopieren des Windows-Pfades zu setzen, hat unbewusst mit Regular Expressions gearbeitet (und deshalb eine Fehlermeldung produziert):  
+```{r regerror, error = TRUE}
+setwd("C:\Program Files\R\R-4.2.0\library")
+```
+Diese Fehlermeldung kommt zustande, da das "\\"-Symbol Teil dieser Suchkriterien ist, und nicht als Text verstanden wird (siehe unten).  
+
+Die Hauptanwendungsfelder für Regular Expressions sind die **Einführung von Platzhaltern für mehrere Suchmöglichkeiten**, die **Suche nach Ausdrücken an bestimmten Positionen**, die **Bearbeitung und Präsentation von nicht-druckbaren Zeichen** oder die **Überprüfung von Formatierungen**.
+
+#### Platzhalter
+Nicht jede Analyse und Auswertung kommt mit Suchkriterien daher, die sich mit einem einzigen String zusammenfassen lassen. Wie würde man etwa nach allen Webadressen in z.B. einem Twitter-Datensatz suchen, ohne alle möglichen Adressen von Hand einzutragen?  
+
+Hierbei können Platzhalter-Kriteren helfen. Das erste wichtige Platzhalterkriterium sind dabei **Charakter-Klassen**. Mit diesen können wir eine Reihe an bestimmten Charakteren auf einmal suchen. 
+
+#### Positionsindizierung
+
+
+#### Spezialzeichen
+
+
+#### Alles zusammen
+Mit allen diesen Optionen zusammengelegt, lassen sich nun mit einem einachen Suchstring eine große Reihe an Eingaben ohne großen Aufwand überprüfen.  
+
+Um ein Beispiel zu bringen: Stell sir vor, du erstellst eine Umfrage, für die du auch die Mailadresse der Befragten benötigt. Um dies zu erreichen, nimmst du in deine Umfrage ein offenes Antwortfeld mit auf, in das die Befragten ihre Mailadressse selbst einfüllen können. Wie überprüfst du nun aber, ob die Befragten tatsächlich a) eine (zumindest technisch) valide Adresse und b) nur diese Adresse, und nicht sonst etwas mit angegeben haben?  
+Eine mögliche Überprüfungsform wäre beispielsweise dieses RegEx-Kosntrukt: `^[A-Za-z0-9.+-]+@[A-Za-z0-9.+-]+.[A-Za-z]{2,}$`. Versuche einmal, mit deinem neu angeeigneten Wissen nachzuvollziehen, was dieses Konstrukt genau matcht, welche möglichen Mailadressen dadurch abgedeckt werden, und wo es eventuell zu Problemen kommen könnte.
+
+Wer sich noch tiefer gehend mit Regular Expressions auch außerhalb voN R beschäftigen will, dem sei die Webseite https://www.regular-expressions.info/ wärmstens empfohlen. Für eine R-spezifische Übersicht über die wichtigsten Regex-Befehle, deren Nutzung und genauere Pattern-Spezifizierung gibt es zudem [ein RStudio-Cheatsheet](https://raw.githubusercontent.com/rstudio/cheatsheets/main/regex.pdf), das alles gut zusammenfasst.
 
 ---
 ```{python, include = F}
