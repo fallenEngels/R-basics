@@ -35,12 +35,13 @@ Auch im professionellen Bereich findet GitHub jedoch Verwendung: So finden sich 
 
 Wie bereits eben erwähnt, ist GitHub dabei nur eine der möglichen Plattformen für den Aufbau einer solchen Versionskontrolle. Da es die am weitesten verbreitete Plattform (und zusätzlich in der Nutzung gratis) ist, werde ich mich im Rahmen dieser Seiten nur auf GitHub beziehen, alles Genannte sollte jedoch in leichter Abwandlung auch auf andere Services oder sogar privat betriebene Versionskontroll-Server zutreffen, solange sie ebenfalls auf Git aufbauen.
 
+### Schritt 0: Erstelle dir ein GitHub-Konto  
+Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account (bzw. eine Zugriffsmöglichkeit auf den gewählten Dienst).  
+Side Note: Wusstest du, dass man als Student kostenlosen Zugriff auf GitHub Pro und weitere Applikationen bekommen kann? Nein? Dann schau mal [hier nach](https://education.github.com/discount_requests/student_application).
+
 ---
 
 ## Variante 1: GitHub über Desktop-Client {#Client}
-
-### Schritt 0: Erstelle dir ein GitHub-Konto  
-Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account (bzw. eine Zugriffsmöglichkeit auf den gewählten Dienst).  
 
 ### Schritt 1: Installiere dir einen Desktop-Client  
 Bei dieser Nutzungsvariante passiert die komplette Interaktion mit GitHub über einen installierten Desktop-Client. Großer Vorteil dieser Variante ist es, dass alle Schritte der Software-Installation und Authentifizierung automatisch von diesem Client übernommen werden. Nachteil dabei ist jedoch, dass man **nur** über diesen CLient mit GitHub interagieren kann, und somit bspw. nicht direkt in RStudio daran erinnert wird, seine Änderungen über Git abzuspeichern und mit GitHub zu synchronisieren.  
@@ -55,9 +56,6 @@ Adaptiert aus: https://towardsdatascience.com/the-easiest-github-tutorial-ever-4
 ---
 
 ##Variante 2: Lokale Git-Installation und RStudio-Integration {#Install}
-  
-### Schritt 0: Erstelle dir ein GitHub-Konto  
-Ich glaube, dieser Schritt sollte ohne große Erklärung ersichtlich sein. Um mit GitHub zu arbeiten, benötigst du einen (kostenlosen) GitHub-Account (bzw. eine Zugriffsmöglichkeit auf den gewählten Dienst).  
 
 ### Schritt 1: Git  
 GitHub ist an und für sich wie erwähnt "nur" ein Webservice, der die von Nutzern hochgeladenen Dateien speichert und präsentiert. Die Kommunikation zwischen GitHub und den Nutzern erfolgt dabei über eine Reihe an standardisierten Befehlen, die durch die **Git**-Software bereitgestellt werden. Git selbst benötigt jedoch ein Unix-Terminal, um zu funktionieren. Mac- und Linux-Nutzer sind dabei klar im Vorteil, während Windows-Nutzer ein paar Installationsschritte mehr ausführen müssen:

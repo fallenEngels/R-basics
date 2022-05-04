@@ -27,7 +27,7 @@ Generell ist auch [dieses DataScience-Textbuch](https://rafalab.github.io/dsbook
 #### Technische Themen
 
 + [R und RStudio - die Grundlagen]() -indev-
-+ [Dokumente erzeigen mit Markdown](https://fallenengels.github.io/R-git-intro/markdown.html)
++ [Dokumente erstellen mit Markdown](https://fallenengels.github.io/R-git-intro/markdown.html)
 + [Nutzung von GitHub aus Desktop-Apps und R](https://fallenengels.github.io/R-git-intro/github.html)
 + [Versionskontrolle mit GitHub](https://fallenengels.github.io/R-git-intro/git-applied.html)
 
