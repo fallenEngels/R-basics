@@ -5,10 +5,10 @@ Wird stetig mit neuem Material erweitert und überarbeitet, und ist auch für mi
 
 Aktuell enthaltene Themen:
 - Integration von Git und GitHub mit RStudio
-- Arbeiten mit GitHub insb. aus R (benötigt weitere Arbeit, resp. Branches)
+- Arbeiten mit GitHub insb. aus R
 - Basics in der Nutzung von Markdown
+- Textmining und Regular Expressions
 
 Themen in development:
 - Basics mit R/RStudio (optional)
-- Textmining mit Regular Expressions
 - Grafiken mit GGPlot2
