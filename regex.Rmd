@@ -13,7 +13,7 @@ library(reticulate)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Insbesondere im Kontext des *Natural Lanzage Proccesings* ist immer wieder die manuelle Inspektion und Bearbeitung von Text-Strings relevant - sei es, um beispielsweise Artefakte in den Quelldaten zu bereinigen, oder den Datensatzauf Basis bestimmter Worte zu filtern.  
+Insbesondere im Kontext des *Natural Language Proccesings* ist immer wieder die manuelle Inspektion und Bearbeitung von Text-Strings relevant - sei es, um beispielsweise Artefakte in den Quelldaten zu bereinigen, oder den Datensatz auf Basis bestimmter Worte zu filtern.  
 Um solche Aufgaben in R zu erleichtern, sind zwei Dinge von besonderer Bedeutung: Einerseits das Wissen um die Funktionsweise der R-Befehle `grep()`,`grepl()`, `regexpr()` und `gsub()`, und andererseits der korrekte Umgang mit **Regular Expressions** in der Nutzung dieser Funktionen. Im Folgenden werden beide Aspekte kurz ausgeführt und veranschaulicht.
 
 ## Inhalt
@@ -36,7 +36,7 @@ grep("e", food)
 grepl("e", food)
 regexpr("e", food)
 ```
-Die Frage, welche der Funktionen angebracht ist, unterscheidet sich dabei je nach Anwendungszweck. Für die Suche nach bestimmten Inhalten in einem größeren Textstring bietet sich `regexpr`an, sobald es jedoch um Analysen mehrere Strings bspw. in einer Liste geht, sind die anderen Funktionen überlegen.  
+Die Frage, welche der Funktionen angebracht ist, unterscheidet sich dabei je nach Anwendungszweck. Für die Suche nach bestimmten Inhalten in einem größeren Textstring bietet sich `regexpr` an, sobald es jedoch um Analysen mehrere Strings bspw. in einer Liste geht, sind die anderen Funktionen überlegen.  
 Da `grep` nur die positiven Einträge zurückgibt, mag es für den Nutzer dabei verständlicher zu bearbeiten sein, als jedes Mal den `grepl`-Output nach `TRUE`-Werten abzusuchen. Andererseits funktionieren bestimmte Filter-Befehle nur mit logischen Angaben. Wer also beispielsweise dieses *pattern matching* innerhalb der `dplyr`-`filter()`-Funktion benutzen will, muss zwingend `grepl()`benutzen.  
 
 #### Gsub: Pattern replacement  
@@ -46,10 +46,10 @@ Im Gegensatz zu `grep`, das rein analytisch arbeitet, lassen sich mit `gsub` die
 gsub("an", "Tannenbaum", "banana")
 sub("an", "Tannenbaum", "banana")
 ```
-Die große Macht dieser drei Funktionen liegt dabei daran, dass die jeweiligen *patterns* nicht auf einzelnen, explizit definierte Werte (z.B. oben "an" bzw. "e") festgelegt sein müssen. Stattdessen lassen sich mit Hilfe von *Regular Expressions* auch variable Kosntrukte als patterns festlegen, wodurch sich die Macht der Funktionen noch einmal deutlich erhöht.
+Die große Macht dieser drei Funktionen liegt dabei darin, dass die jeweiligen *patterns* nicht auf einzelne, explizit definierte Werte (z.B. oben "an" bzw. "e") festgelegt sein müssen. Stattdessen lassen sich mit Hilfe von *Regular Expressions* auch variable Konstrukte als patterns festlegen, wodurch sich die Macht der Funktionen noch einmal deutlich erhöht.
 
 ## Regular Expressions {#Regex}
-Als *Regular Expression* werden spezielle Symbole verstanden, die innerhalb eines Textstings nicht als reiner Text, sondern als Suchkriterium für andere Textinhalte verwendet werden. Wer schon einmal versucht hat, sein `working directory` durch das Kopieren des Windows-Pfades zu setzen, hat unbewusst mit Regular Expressions gearbeitet (und deshalb eine Fehlermeldung produziert):  
+Als *Regular Expression* werden spezielle Symbole verstanden, die innerhalb eines Textstrings nicht als reiner Text, sondern als Suchkriterium für andere Textinhalte verwendet werden. Wer schon einmal versucht hat, sein `working directory` durch das Kopieren des Windows-Pfades zu setzen, hat unbewusst mit Regular Expressions gearbeitet (und deshalb eine Fehlermeldung produziert):  
 ```{r regerror, error = TRUE}
 setwd("C:\Program Files\R\R-4.2.0\library")
 ```
@@ -60,21 +60,35 @@ Die Hauptanwendungsfelder für Regular Expressions sind die **Einführung von Pl
 #### Platzhalter
 Nicht jede Analyse und Auswertung kommt mit Suchkriterien daher, die sich mit einem einzigen String zusammenfassen lassen. Wie würde man etwa nach allen Webadressen in z.B. einem Twitter-Datensatz suchen, ohne alle möglichen Adressen von Hand einzutragen?  
 
-Hierbei können Platzhalter-Kriteren helfen. Das erste wichtige Platzhalterkriterium sind dabei **Charakter-Klassen**. Mit diesen können wir eine Reihe an bestimmten Charakteren auf einmal suchen. 
+Hierbei können Platzhalter-Kriterien helfen. Das erste wichtige Platzhalterkriterium sind dabei **Charakter-Klassen**. Mit diesen können wir eine Reihe an bestimmten Charakteren auf einmal suchen, indem wir sie in eckige Klammern packen. Der Suchstring "[AEF]" sucht dabei beispielsweise nach allen Strings, in denen ein A, E oder F vorkommt, während der Suchstring "[A-Z]" die Strings nach allen Großbuchstaben durchsucht.  
+Wichtig dabei ist jedoch, dass alles innerhalb der eckigen Klammer sich nur auf eine einzige Stringposition bezieht. Sollen Konstrukte aus mehreren Buchstaben gesucht werden, so müssen diese über zusätzliche eckige Klammern spezifiziert werden: Der Suchstring "[A-Z][a-z]" beispielsweise matcht alle Strings, in denen auf einen Großbuchstabe ein klein geschriebener Buchstabe folgt.  
+Zwischen den eckigen Klammern kann dabei eine beliebige Auswahl an Buchstaben und Symbolen stehen, oder wie eben gezeigt sogar Zeichenbereiche ausgewählt werden. Zusätzlich dazu gibt es jedoch auch vordefinierte Klassengruppen, die einfacher anzuwählen sind. Statt "[A-Za-z0-9]" kann beispielsweise auch einfach "[[:alnum:]]" geschrieben werden. Als Allzweckwaffe bietet sich "." an, der quasi alle Symbole matcht. 
+Die Auswahl lässt sich dabei auch verneinen, indem ein "^" an den Beginn der Klammer gesetzt wird. Der Suchstring [^tz] würde dabei alle Strings matchen, in denen andere Symbole als "t" und "z" vorkommen.  
+
+Wie eben erwähnt, ist die so festgelegte Auswahl an Symbolen dabei jedoch immer nur für das Matchen eines einzigen Buchstaben gut. Soll eine solche Auswahl für mehrere Symbole in FOlge gelten, lassen sich in RegEx jedoch bestimmte *quantifier* nutzen.  
+Die zentralen *quantifier* sind dabei \*(mind. 0 Übereinstimmungen), +(mind. 1 Übereinstimmung), ?(max. 1 Übereinstimmung) und \{n\}(genau n Übereinstimmungen). Wichtig ist dabei jedoch zu beachten, dass \* beim Matching immer den längsten auffindbaren String zu bevorzugen scheint.  
+Als praktisches Beispiel lassen sich mit dem Suchstring "[A-Z][a-z]+" beispielsweise alle Worte matchen, die mit Großbuchstaben beginnen und mindestens zwei Zeichen lang sind. 
 
 #### Positionsindizierung
+Zusätzlich gibt es bestimmte Sonderzeichen, die verwendet werden können, um die Position eines zu matchenden Strings weiter einzuschränken. So würde "^A" nur Strings matchen, die mit einem "A" beginnen, und "A\$" nur Strings matchen, die mit einem "A" enden. Beide diese Qualifier lassen sich dabei kombinieren, sodass bspw. "^A\$" alle Strings matcht, die aus exakt "A" bestehen.  
+Das selbe funktioniert auch auf Wort-Ebene mit den Qualifiern "\\\\<" für den Beginn und "\\\\>" für das Ende eines Wortes.
 
+ACHTUNG: "^" ist - wie du vielleicht gemerkt hast - somit sowohl für die Verneinung von Symbolgruppen, als auch für die Festlegung von Positionen von Bedeutung! Sei dir dessen bewusst, da es sonst zu Verwirrungen kommen kann.
 
 #### Spezialzeichen
+Wie in diesen Beispielen zu sehen ist, nehmen bestimmte Zeichen wie "[" oder "^" in Strings eine besondere Rolle ein. Will man diese auch als **Metacharaktere** bezeichneten Symbole jedoch stattdessen als normale Buchstaben verwenden (beispielsweise, weil der verwendete String sie als Teil eines normalen Satzes benutzt), so ist das durch *escapen* möglich. Stellt man ein "\\" voran, so wird das verwendete Symbol nicht als Metacharakter, sondern als normales Zeichen behandelt.  
+Umgekehrt werden einige "normale" Symbole jedoch durch das Escapen ihrerseits zu Metacharakteren. So beschreibt beispielsweise "\\n" einen Zeilenumbruch. Dies ist auch der Grund, warum die oben gezeigte Fehlermeldung beim Kopieren des Windows-Pfades passiert. Da Windows Unterordner als "C:\\Program Files" aufzeigt, denkt R beim Ausführen des Befehls, dass es das "P" nicht als Buchstaben, sondern als Metacharakter "\\P" behandeln soll - und ist dann verwirrt, weil diese Anweisung keinen Sinn ergibt.  
+Das Escapen ist dabei auch z.B. hier für das Schreiben von RMarkdown-Dateien relevant. Ich muss zum Beispiel jedes "\$"-Symbol mit einem vorangestellten "\\" escapen, da sonst alles dazwischen von Markdown als mathematische Formel behandelt wird. Zusätzlich muss ich jedes "\\" durch ein vorangestelltes, zweites "\\" escapen, da R sonst denkt, dass ich die nachfolgenden Anführungszeichen escapen will.  
 
 
 #### Alles zusammen
-Mit allen diesen Optionen zusammengelegt, lassen sich nun mit einem einachen Suchstring eine große Reihe an Eingaben ohne großen Aufwand überprüfen.  
+Mit allen diesen Optionen zusammengelegt lassen sich nun mit einem einfachen Suchstring eine große Reihe an Eingaben ohne großen Aufwand überprüfen und matchen.  
 
-Um ein Beispiel zu bringen: Stell sir vor, du erstellst eine Umfrage, für die du auch die Mailadresse der Befragten benötigt. Um dies zu erreichen, nimmst du in deine Umfrage ein offenes Antwortfeld mit auf, in das die Befragten ihre Mailadressse selbst einfüllen können. Wie überprüfst du nun aber, ob die Befragten tatsächlich a) eine (zumindest technisch) valide Adresse und b) nur diese Adresse, und nicht sonst etwas mit angegeben haben?  
-Eine mögliche Überprüfungsform wäre beispielsweise dieses RegEx-Kosntrukt: `^[A-Za-z0-9.+-]+@[A-Za-z0-9.+-]+.[A-Za-z]{2,}$`. Versuche einmal, mit deinem neu angeeigneten Wissen nachzuvollziehen, was dieses Konstrukt genau matcht, welche möglichen Mailadressen dadurch abgedeckt werden, und wo es eventuell zu Problemen kommen könnte.
+Um ein praktisches Beispiel zu bringen: Stell dir vor, du erstellst eine Umfrage, für die du auch die Mailadresse der Befragten benötigst. Um dies zu erreichen, nimmst du in deine Umfrage ein offenes Antwortfeld mit auf, in das die Befragten ihre Mailadresse selbst einfüllen können.  
+Wie überprüfst du nun aber, ob die Befragten tatsächlich a) eine (zumindest technisch) valide Adresse und b) nur diese Adresse, und nicht sonst etwas mit angegeben haben?  
+Eine mögliche Überprüfungsform wäre beispielsweise dieses RegEx-Konstrukt: `^[A-Za-z0-9.+-]+@[A-Za-z0-9.+-]+.[A-Za-z]{2,}$`. Versuche einmal, mit deinem neu angeeigneten Wissen nachzuvollziehen, was dieses Konstrukt genau matcht, welche möglichen Mailadressen dadurch abgedeckt werden, und wo es eventuell zu Problemen kommen könnte.  
 
-Wer sich noch tiefer gehend mit Regular Expressions auch außerhalb voN R beschäftigen will, dem sei die Webseite https://www.regular-expressions.info/ wärmstens empfohlen. Für eine R-spezifische Übersicht über die wichtigsten Regex-Befehle, deren Nutzung und genauere Pattern-Spezifizierung gibt es zudem [ein RStudio-Cheatsheet](https://raw.githubusercontent.com/rstudio/cheatsheets/main/regex.pdf), das alles gut zusammenfasst.
+Wer sich noch tiefer gehend mit Regular Expressions auch außerhalb von R beschäftigen will, dem sei die Webseite https://www.regular-expressions.info/ wärmstens empfohlen. Für eine R-spezifische Übersicht über die wichtigsten Regex-Befehle und Metacharaktere, deren Nutzung und genauere Pattern-Spezifizierung gibt es zudem [ein RStudio-Cheatsheet](https://raw.githubusercontent.com/rstudio/cheatsheets/main/regex.pdf), das alles gut zusammenfasst.
 
 ---
 ```{python, include = F}
