@@ -35,6 +35,9 @@ Generell ist auch [dieses DataScience-Textbuch](https://rafalab.github.io/dsbook
 #### Textverarbeitung
 + [Pattern Matching mit Regular Expressions](https://fallenengels.github.io/R-basics/regex.html)
 
+#### Sonstiges
++ [ggplot2: Elegante Datenvisualisierung](https://fallenengels.github.io/R-basics/ggplot.html)
+
 ---
 ```{python, include = F}
 import os

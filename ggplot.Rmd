@@ -1,0 +1,242 @@
+---
+title: "**ggplot2: Elegante Datenvisualisierung**"
+output: 
+  html_document: 
+    theme: darkly
+---
+Index: https://fallenengels.github.io/R-basics  
+
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Inhalt
+[Warum ggplot2?](#Intro)  
+[Modularität: Sei meine Leinwand](#Modular)  
+[Alle Informationen auf einmal](#Overload)  
+[Präsentation und Farben](#Pretty)  
+[Spezialisierte Anwendungen und Tricks](#Tricks)  
+
+---
+
+## Warum ggplot2? {#Intro}
+
+Obwohl bereits base-R die Möglichkeit bietet, schnell informative Grafiken zu erstellen, sind diese einerseits meistens nicht wirklich schön anzusehen (Stichwort Präsentation von Daten in Forschungsarbeiten), und andererseits durch den Ersteller nicht gut zu bearbeiten. Das Paket `ggplot2` macht es sich zur Aufgabe, diese beiden Probleme zu lösen, damit sich schöne und übersichtliche Grafiken erzeugen lassen können:  
+
+```{r plotdemo, fig.show="hold", out.width="50%"}
+data(mpg)
+
+# plotting mit base-R command plot()
+plot(mpg$displ, mpg$hwy, main = "Engine size - Miles/Gallon plot for different cars",
+     sub = "plotted in base-R", xlab = "Engine size (litre)", ylab = "Miles/Gallon")
+
+# plotting mit ggplot2 command ggplot()
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_smooth(colour = "dark gray", fill = "light gray") + geom_point(aes(colour = cyl)) + theme_minimal() + 
+  labs(title = "Engine size - Miles/Gallon plot for different cars",
+       subtitle = "plotted in ggplot2",
+       x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders")
+```
+
+Zwei Dinge sollten hierbei klar ersichtlich sein: Zum einen eignet sich ggplot2 für eine deutlich schönere Präsentation, in der zudem über z.B. Farben noch weitere Informationen kommuniziert werden können. Zum anderen ist ggplot was den Aufbau einer Grafik angeht jedoch um einiges komplexer als die base-R `plot()`-Funktion.  
+
+Diese Komplexität resultiert daraus, dass ggplot2 auf einer zugrundeliegenden, standardisierten [**Grammar of Graphics** basiert](http://vita.had.co.nz/papers/layered-grammar.pdf) (daher das gg). Glücklicherweise ist dabei vieles der wahrgenommenen Komplexität auf die dieser Grammatik zugrundeliegenden Modularität in der Grafikgenerierung geschuldet. Sobald diese Modularität einmal verstanden ist (was ich im Folgenden mit einer kurzen Erklärung und Demonstration versuchen werde), sollte einiges der Komplexität aus der Grafikerstellung verschwinden, und vieles Sinn ergeben.  
+
+## Modularität: Sei meine Leinwand {#Modular}
+
+Ggplot folgt einem grundlegend modularen Aufbau. Das bedeutet, dass die finale Grafik nicht in einem Schritt aufgebaut wird, sondern stattdessen durch mehrere, sich überlagernde Teil-Befehle entsteht. Die Anzahl und Ausgestaltung dieser Teilbefehle bleibt dabei den jeweiligen Erstellern überlassen, sodass sich mit genügend Aufwand die komplexesten Grafiken aufbauen lassen können.
+
+#### Setting the stage: `ggplot()`
+Den Anfang dieser Modularität macht dabei immer der `ggplot()`-Befehl. Dieser Befehl erfüllt zwei Funktionen: Einerseits legt er fest, dass alles folgende Teil eines Plots ist, und zeichnet den Rahmen dieses Plots, und andererseits können hier grundlegende Befehle festgelegt werden, die für den gesamten Plot gelten sollen. Sollten also alle zu visualisierenden Elemente dem selben Grund-Datensatz entspringen und/oder sich auf die selben Variablen beziehen, so lassen sich diese innerhalb des `ggplot()`-Befehls für die gesamte Grafik festlegen.  
+
+Um das Ganze einmal zu visualisieren:
+Ein Ausführen des leeren `ggplot()`-Befehls (links) zeichnet nur eine leere Leinwand. Sollten innerhalb des `ggplot()`-Befehls jedoch bereits globale Variablen für die folgende Grafik festgelegt werden (rechts), so werden zudem bereits die Achsen mit eingezeichnet:  
+```{r base modular demo, fig.show="hold", out.width="50%"}
+# leeres ggplot-objekt
+ggplot()
+
+# ggplot-Objekt mit festgelegten globalen Variablen
+ggplot(data = mpg, aes(x = displ, y = hwy))
+```
+
+Die Festlegung globaler Variablen bietet sich dabei an, um einen Überblick über die verwendeten Variablen zu behalten, wenn beispielsweise (wie oben gezeigt) mehrere Grafik-Elemente wie Punkt- oder Linien-Graphen dieselben Variablen verwenden wollen.  
+Dabei ist es durchaus möglich, beide Ansätze zu kombinieren, und zum Beispiel global X- und Y-Variable zu definieren, aber für jedes Element einzeln eine Farb-Variable zu deklarieren.  
+Beide Ansätze führen dabei jedoch schlussendlich zu dem gleichen Ergebnis: 
+```{r global vars, fig.show="hold", out.width="50%"}
+# plot mit lokal definierten Variablen
+ggplot() + geom_point(aes(x = mpg$displ, y = mpg$hwy)) + geom_smooth(aes(x = mpg$displ, y = mpg$hwy))
+
+# ggplot mit global definierten Variablen
+ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point() + geom_smooth()
+```
+
+Auf die durch `ggplot()` aufgebaute "Leinwand" lässt sich nun mithilfe weiterer Funktionen und Argumente ein beliebiges Bild aus den zugrundeliegenden Daten zeichnen. Um dies zu erreichen, lassen sich weitere Argumente einfach durch ein `+` aneinanderketten.  
+Die Befehlskette `ggplot() + geom_histogram() + labs()` beispielsweise definiert zuerst eine Leinwand, auf der dann ein Histogramm gezeichnet wird, bevor die aus den Variablennamen abgeleiteten Achsenbenennungen mit der `labs()`-Funktion durch informativere Benennungen ersetzt werden. Die einzelnen Argumente sind dabei inhaltlich getrennt zu behandeln, sodass es wichtig ist, vor einem "+" alle geöffneten Klammern wieder zu schließen!
+
+#### Verwendete Daten und Ästhetiken: `aes()`  
+Wie in den oben gezeigten Grafiken zu sehen ist, sind die verwendeten Variablen immer in einem untergeordneten `aes()`-Befehl angegeben. Dies ist ein **essenzieller Schritt**, um korrekte Ergebnisse von ggplot zu erreichen, und häufig die erste zu überprüfende Stelle, sollte es zu Problemen in der Grafik-Erstellung kommen. Dieses Ästhetik-Argument lässt sich dabei ebenfalls entweder *global* in der `ggplot()`-Funktion, oder lokal in der jeweiligen Visualisierungs-Funktion (z.B. `geom_point()`) festlegen.  
+Wie oben zu sehen, lassen sich über diese `aes()`-Funktion dabei nicht nur die verwendeten X- und Y-Variablen, sondern auch andere Ästhetik-Argumente wie z.B. die Farbe oder die Füllung der zu erzeugenden Objekte (über `colour = ` und `fill = ` respektive) festlegen. Neben `colour` und `fill` gibt es dabei noch eine ganze Reihe an möglichen Ästhetiken, die sich für das Plotten der Graphen verändern lassen (s. Abschnitt [Präsentation und Farben](#Pretty) für mehr Beispiele).  
+
+Insbesondere für `colour` und `fill` ist dabei zu beachten, dass diese sowohl innerhalb der `aes()`-Funktion, als auch außerhalb dieser Funktion stehen können. Während eine Nutzung innerhalb von `aes()` dabei die Farbe als Variable des Datensatzes definiert, führt eine Nutzung außerhalb von `aes()` dazu, dass die Farbe als ein bestimmter Farbwert definiert wird:
+
+```{r aes, fig.show="hold", out.width="50%"}
+# colour innerhalb aes -> Farbe basierend auf Variable
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point(aes(colour = cyl)) + theme_minimal() + 
+  labs(title = "Engine size - Miles/Gallon plot for different cars",
+       x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders")
+
+# colour außerhalb aes -> Farbe als definitiver Wert
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point(colour = "green") + theme_minimal() + 
+  labs(title = "Engine size - Miles/Gallon plot for different cars",
+       x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders")
+
+```
+
+Die Unterscheidung zwischen `colour` und `fill` ist dabei ein Thema für sich. Generell lässt sich festhalten, dass `fill` sich auf die innere Füllung eines Objektes bezieht (bspw. Bars), während `colour` die Farbe der Umrandung spezifiziert. Die Standard-Punkte von z.B. `geom_point()` sind dabei eine der markantesten Ausnahmen, da sie nur ein `colour`- und kein `fill`-Argument besitzen.
+
+### Visualisierungen: `geom_...()`
+Wie bereits in vielen der genannten Beispiele zu sehen ist, bauen die `geom_...()`-Funktionen auf die gelieferten Leinwand-Grundlagen auf, und bieten die eigentliche Visualisierung der Daten. Wer einmal in RStudio "geom_" eingibt, wird dabei in den vorgeschlagenen Funktionen sehen, dass ggplot2 eine ganze Reihe an Visualisierungsmöglichkeiten anbietet.  
+Bei der Wahl der jeweiligen Visualisierung ist dabei jedoch immer darauf zu achten, wie viele Argumente die jeweilige Funktion benötigt. Insbesondere Barplots und Histogramme benötigen beispielsweise nur eine x-Variable, da sie die Y-Variable selbstständig aus der Häufigkeitsverteilung von X erzeugen. Sollte dennoch (z.B. als globale Option) eine Y-Variable festgelegt werden, wird sich die Funktion bei Ausführung mit einer Fehlermeldung verabschieden.  
+
+Wie ebenfalls bereits zu Beginn gezeigt, können mehrere dieser Visualisierungsmöglichkeiten innerhalb desselben Plots genutzt werden, um beispielsweise eine Punkteverteilung in Kombination mit einer Regressionsgeraden zu visualisieren. Auf diese Weise lassen sich auch unterschiedliche X- und Y-Variablen gleichzeitig abbilden, auch wenn dadurch unter Umständen die Skalenbreite leidet. 
+
+Bei der Nutzung mehrerer Visualisierungs-Arten innerhalb derselben Grafik ist dabei wiederum der modulare Aufbau von ggplot zu berücksichtigen: **Das zuletzt angegebene Objekt überlagert immer die vorangegangenen Objekte**: 
+
+```{r order, fig.show="hold", out.width="50%"}
+# Punkte überlagern Linie
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_smooth(colour = "black", fill = "dark gray") + geom_point(aes(colour = cyl)) + theme_minimal() + 
+  labs(x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders")
+
+# Linie überlagert Punkte
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point(aes(colour = cyl)) + theme_minimal() + geom_smooth(colour = "black", fill = "dark gray") + 
+  labs(x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders")
+```
+
+#### Weitere wichtige Funktionen
+Neben den `geom_...()`-Funktionen lassen sich noch andere Merkmale des Graphen durch Funktionen definieren. Die bereits in den vorangegangenen Graphen benutzte `labs()`-Funktion ermöglicht beispielsweise eine manuelle Veränderung der Benennungen für Achsen, Legenden oder den gesamten Plot.  
+Über diese Zusatzfunktionen lassen sich beispielsweise bequem Skalentransformationen durchführen (z.B. `scale_x_log10()`) oder Datenformate ändern (z.B. `scale_y_date()`), bestimmte Farbpaletten festlegen (z.B. `scale_colour_brewer()`, alternativ `scale_fill_manual()` für eignene Skalen) oder Themen für die Gesamtpräsentation des Plots (z.B. `theme_minimal`) festlegen.  
+
+
+## Alle Informationen auf einmal {#Overload}
+
+Wie bereits erwähnt, sind `colour` und `fill` nicht die einzigen Attribute, die sich variabel festlegen lassen. Auch die Darstellungsform von Punkten/Linien, deren Größe und Alpha-Level lassen sich frei anhand von Drittvariablen festlegen. Um dies zu demonstrieren folgt nun der Versuch, einen Großteil der restlichen Variablen des mpg-Datensatzes zusätzlich zu den bekannten X- und Y-Variablen in einem einzigen Plot zu visualisieren. Das Ergebnis ist nicht schön, zeigt aber gut, wozu ggplot bei richtiger Anwendung in der Lage ist:
+
+```{r overload}
+mpg %>% mutate(cyl = as.factor(cyl), year = as.factor(year)) %>%
+  ggplot(aes(x = displ, y = hwy)) + # X- und Y-Variable
+  geom_point(aes(alpha = cyl, # Durchsichtigkeit basierend auf Zylinderzahl
+                 shape = year, # Jahr als Punktform
+                 colour = fl, # Treibstofftyp als Farbe
+                 size = class # Fahrzeugklasse als Größe
+                 )) + 
+  geom_text(aes(label = manufacturer), size = 2, nudge_y = 1.5) + # Hersteller als Name
+  theme_minimal() + theme(legend.position = "none") + 
+  labs(title = "Engine size - Miles/Gallon plot for different cars",
+       subtitle = "plotted in ggplot2",
+       x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders")
+
+```
+
+
+## Präsentation und Farben {#Pretty}
+
+Wie bereits erwähnt, lassen sich die Farbpaletten und die gesamte thematische Präsentation des letztendlich entstehenden Graphen jederzeit über Befehle anpassen, wodurch Grafiken unter Umständen deutlich lesbarer werden können.  
+Beide dieser Varianten lassen sich dabei durch Ergänzungs-Packages weiter ausbauen, weshalb ich sie hier explizit herausgreifen will:
+
+Für Farben bietet sich das Package `RColorBrewer` an, das standardmäßig mit ggplot2 geliefert wird und eine Reihe an schönen Farbpaletten anbietet, die sich in ggplot über den Befehl `scale_fill_brewer(palette = "")` einfügen lassen. Eine Übersicht dieser Farbpaletten in Aktion findet sich beispielsweise hier: http://applied-r.com/rcolorbrewer-palettes/  
+
+Für weitere Themes bietet sich das (manuell zu installierende) Package `ggthemes` an, das die mitgelieferten ggplot-Themen um eine große Reihe visuell unterschiedlicher und von klassischen Programmen/Nachrichtendiensten inspirierter Grafik-Themen anbietet. Beispiele finden sich hier: https://github.com/jrnold/ggthemes#readme  
+Wer sein eigenes Theme erstellen und abspeichern will, dem sei das Package `ggCorpIdent` ans Herz gelegt, das genau dies ermöglicht: https://github.com/INWTlab/ggCorpIdent
+
+
+## Spezialisierte Anwendungen und Tricks {#Tricks}  
+
+#### Tidyverse
+Das ggplot2-Package ist Teil des Tidyverse. Das bedeutet, dass alle Funktionen der anderen Tidyverse-Packages relativ reibungslos in ggplot-Berechnungen integriert werden können.  
+Ein zusätzlicher Vorteil dieses Umstandes ist, dass ggplot nativ mit dem `%>%`-Operator kompatibel ist. Daten können somit für die grafische Aufbereitung verändert und gefiltert, und dann in die ggplot()-Funktion geleitet werden, ohne dass die dafür notwendigen Veränderungen zwangsweise innerhalb des Quelldatensatzes überschrieben oder sonst wie abgespeichert werden müssen.
+
+#### Sub-Plots anhand von Variablen
+Mithilfe des Argumentes `facet_grid()` (bzw. `facet_wrap()` für ein [weniger striktes Schaubild](https://www.statology.org/facet_wrap-vs-facet_grid-in-r/)) lassen sich Subgraphen anhand von Drittvariablen erstellen. Wie oben zu sehen ist, kommt man manchmal an einen gewissen Punkt, an dem sich die Menge an Informationen nicht mehr verlässlich innerhalb eines einzelnen Graphen darstellen lässt.  
+Die Facetten-Plots sind dabei eine gute Möglichkeit, Grafiken anhand einer oder zwei weiterer Drittvariablen aufzuteilen. Die Generierung funktioniert dabei analog zu Regressionslogik: `facet_grid(vertikaleDrittvariable ~ horizontaleDrittvariable)`, wobei auch nur eine einzige Drittvariable gewählt werden kann, indem die andere durch einen Punkt ersetzt wird: `facet_grid(. ~ horizontaleDrittvariable)`.  
+
+Während `facet_wrap()` dabei nur Grafiken für die vertikal~horizontal-Paare anzeigt, für die sich tatsächlich Daten finden lassen, erzeugt `facet_grid()` einen Plot für jede mögliche Wertkombination - und kann so auch leere Plots erzeugen.
+```{r facet}
+# facet_wrap mit einer Drittvariable (Jahr)
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_smooth(colour = "dark gray", fill = "light gray") + geom_point(aes(colour = cyl)) + theme_minimal() + 
+  labs(title = "Engine size - Miles/Gallon plot for different cars",
+       subtitle = "plotted in ggplot2",
+       x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders") + 
+  facet_wrap(.~year)
+
+# facet_grid mit zwei Drittvariablen (# Zylinder ~ Jahr) - leeres Feld für 1999 - 5 Zylinder
+mpg %>% mutate(cyl = as.factor(cyl)) %>%
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_smooth(colour = "dark gray", fill = "light gray") + geom_point(aes(colour = cyl)) + theme_minimal() + 
+  labs(title = "Engine size - Miles/Gallon plot for different cars",
+       subtitle = "plotted in ggplot2",
+       x = "Engine size (litre)", y = "Miles/Gallon", colour = "# of cylinders") + 
+  facet_grid(cyl~year)
+
+```
+
+
+#### Mehrere Achsen in einem Plot
+Es kann in bestimmten Nischen-Fällen durchaus zu Situationen kommen, in denen zwei unterschiedliche Variablen mit unterschiedlichen Werten (bspw. Punktewolke zw. 10-100 und Histogramm zw. 1-5) im selben Graph visualisiert werden sollen. Dies ist mit ggplot inzwischen ebenfalls möglich, wenn auch nur über Umwege:  
+
+Wie bereits zu Beginn erklärt, werden die Achsengrößen in ggplot global anhand der gegebenen Variablen festgelegt. Zwar ist es durchaus möglich, mehrere Variablen mit unterschiedlichen Achsenlängen in denselben Graphen zu packen, die Reichweite der jeweiligen Achse reicht dann jedoch vom Minimum der kleinsten Variable bis zum Maximum der größten Variable.  
+Der Workaround hierfür ist es, die gewünschte zweite Variable so zu transformieren, dass sie den selben Wertebereich wie die erste Variable einnimmt - und dann über einen Befehl wie `scale_y_continuous(sec.axis = sec_axis(~ . FORMEL))` die für diese zweite Variable zuständige Achse zurück auf das ursprüngliche Niveau zu transformieren:
+```{r axes}
+# data frame mit zwei gleichzeitig zu präsentierenden Y-Werten:
+climate <- data.frame(month = 1:12, 
+                      temp = c(-4,-4,0,5,11,15,16,15,11,6,1,-3),
+                      precip = c(49,36,47,41,53,65,81,89,90,84,73,55))
+
+climate %>% mutate(precip = precip / 8) %>% # Recodierung Feuchtigkeit
+  ggplot(aes(x = month)) + 
+  geom_col(aes(y = precip), fill = "light blue") + # Feuchtigkeit
+  geom_line(aes(y = temp), colour = "red", size = 1.5) + # Temperatur
+  scale_y_continuous("Temperature", sec.axis = sec_axis(~ . * 8, name = "Precipitation")) + #Re-Recodierung zweite Y-Achse
+  labs(x = "Month", title = "Climatogram for Oslo (1961-1990)") + # Titel
+  geom_hline(yintercept = 0) + theme_minimal() # Grafikspielereien
+  
+
+```
+
+
+Die Bandbreite an Grafikoptionen und Features von ggplot2 lässt sich dabei durch zusätzliche Packages noch weiter vergrößern. Beispiele für Visualisierungsmöglichkeiten finden sich überall im Internet, z.B. hier: https://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html  
+
+Wie zu beinahe jedem anderen hier besprochenen Thema auch, gibt es für ggplot2 ebenfalls ein [umfangreiches Cheatsheet](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf). Zudem lässt sich für jede der Subfunktionen (`geom_point()`, `labs()`, ...) eine eigene, detaillierte Hilfeseite über das gewohnte `?` aufrufen.  
+
+Die [ggplot2-Webseite](https://ggplot2.tidyverse.org/) und das [R-Cookbook](http://www.cookbook-r.com/Graphs/) sind ebenfalls eine gute Anlaufstelle für weitere Informationen und ANwendungsbeispiele.  
+
+Insbesondere für ggplot gilt zudem ein weiterer Punkt: Solltet ihr mit der Anwendung von ggplot-Funktionen Probleme haben, empfiehlt sich immer ein kurzer Blick ins Internet, z.B. auf StackOverflow, da dort viele der größten und kleinsten Probleme von ggplot bereits angesprochen und gelöst wurden.  
+
+---
+
+```{python, include = F}
+import os
+from datetime import datetime
+lastmodified = datetime.fromtimestamp(os.stat('ggplot.Rmd').st_mtime)
+```
+
+Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
+  
+**Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
+**.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/ggplot.Rmd
