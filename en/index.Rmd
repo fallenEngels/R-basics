@@ -1,0 +1,50 @@
+---
+title: "**R Basics - Index**"
+output: 
+  html_document: 
+    theme: darkly
+---
+Index: https://fallenengels.github.io/en/R-basics  
+Auf Deutsch: https://fallenengels.github.io/index.html  
+
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Welcome
+  
+Hidden in these pages, you will find a variety of texts and tutorials intended on helping a normal human being in their quest of analyzing data with R. I'll be touching on a variety of themes and concepts, breaking them down to a fundamental level and trying to explain them in an easily digestable fashion. Unfortunately, this will mean that some details and complexities will have to be disregarded, but that shan't stop us here.  
+  
+In case you're looking for a deeper dive into certain topics, I will usually link to or reference sources of further information. For a general (and more in-depth) look at using R for statistical analysis, I'll also recommend looking at [this data science text book](https://rafalab.github.io/dsbook/) written by Harvard professor Rafael A. Irizarry.
+
+---
+
+## Contents
+
+#### Technicalities
+
++ [Basics of working with and in R](https://fallenengels.github.io/en/R-basics.html)
++ [Dokumente erstellen mit Markdown (GER ONLY)](https://fallenengels.github.io/R-basics/markdown.html)
++ [Nutzung von GitHub aus Desktop-Apps und R (GER ONLY)](https://fallenengels.github.io/R-basics/github.html)
++ [Versionskontrolle mit GitHub (GER ONLY)](https://fallenengels.github.io/R-basics/git-applied.html)
+
+#### Statistical analysis
+
+#### Text processing
++ [Pattern Matching mit Regular Expressions (GER ONLY)](https://fallenengels.github.io/R-basics/regex.html)
+
+#### Other topics
++ [ggplot2: Elegante Datenvisualisierung (GER ONLY)](https://fallenengels.github.io/R-basics/ggplot.html)
+
+---
+```{python, include = F}
+import os
+from datetime import datetime
+lastmodified = datetime.fromtimestamp(os.stat('index.Rmd').st_mtime)
+```
+  
+**Last modification:** `r py$lastmodified`, R version `r getRversion()`  
+**.Rmd data of this document:** https://github.com/fallenEngels/R-basics/blob/main/en/index.Rmd
