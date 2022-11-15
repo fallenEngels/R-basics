@@ -5,7 +5,7 @@ output:
     theme: darkly
 ---
 Index: https://fallenengels.github.io/en/R-basics  
-Auf Deutsch: https://fallenengels.github.io/index.html  
+Auf Deutsch: https://fallenengels.github.io/R-basics/
 
 ---
 
