@@ -4,7 +4,7 @@ output:
   html_document: 
     theme: darkly
 ---
-Index: https://fallenengels.github.io/en/index.html  
+Index: https://fallenengels.github.io/R-basics/en/index.html  
 German version: https://fallenengels.github.io/r-basics.html   
 
 ---
@@ -88,6 +88,8 @@ If you are wondering how you could possibly know the names of the variables in y
 ### Data types 
 We have encountered *numbers* and *characters* before. We've also seen that you can do maths with numbers, but not characters, and we have also seen that when combining both, characters take priority. Numbers and Characters will probably be the bulk of what you encounter, but there are a multitude of data types built into R, and some packages expand these definitions even further. Another common data type besides *numbers* and *characters* is the *logical* data type, which can take the values `TRUE` and `FALSE`.  
 This data type is a bit weird, as it usually has no use on its own, but can be used to subset other rows, as they can be the results of simple filtering equations. Running `data$age < 30` for example returns a vector of the same length as `data$age`, with values **TRUE** if the age is under 30 and **FALSE** otherwise. This can be combined with the square brackets above to filter data: `data[data$age < 30, ]` for example will return a modified `data` frame, including the rows of respondents under 30 and all columns (since the second parameter was left empty).  
+  
+While not *technically* data types, **NA** is still something we should talk about. NA stands for "non-applicable" and will be used whenever there is *no value to be displayed*, be it because there is no value in the underlying data for that case (like accessing a row/column that doesn't exist) or because some sort of function produces no output (like running `mean()` on a character vector). NAs aren't inherently a bad thing, as they will be discarded for most calculations or can be discarded manually via optional arguments (`mean()` has a `na.rm` argument to ignore NA in the data), however, you should still be aware whether there are any NAs in your data.
 
 
 ### Functions  
@@ -101,7 +103,8 @@ As we've seen when running `?mean`, each function comes with several parameters 
 
 ## Expanding R: Libraries and packages {#Library}  
 While R comes prepackaged with a variety of functions, you will find yourself limited in many circumstances. For example, reading an Excel-file (.xls or .xlsx) into R is not possible with R out-of-the-box.  
-Fortunately, due to its open-source nature, everyone can write their own functions and commands to expand on R's capabilities and publish them for everyone else to use. These collections of functions are commonly called *libraries* and are distributed in a set format called *packages*. You can install packages onto your local machine at any time via the `install.packages()` command. To actually use the installed packages inside R, you will have to load them into your project via the `library()` command. **Keep in mind that `install.packages` requires a string (`install.packages("name")`) to match while library searches for a package object (`library(name)` without the ")!**  
+Fortunately, due to its open-source nature, everyone can write their own functions and commands to expand on R's capabilities and publish them for everyone else to use. These collections of functions are commonly called *libraries* and are distributed in a set format called *packages*. There are [a whole lot of packages available](https://cran.r-project.org/web/packages/available_packages_by_name.html), and you will not need almost all of them.   
+You can install packages onto your local machine at any time via the `install.packages()` command. To actually use the installed packages inside R, you will have to load them into your project via the `library()` command. **Keep in mind that `install.packages` requires a string (`install.packages("name")`) to match while library searches for a package object (`library(name)` without the ")!**  
 As an example, loading Excel-files into R can be done via the `read_excel()` function from the `readxl` package.  
 
 Keep in mind that you have to load and reload your libraries every time you open up R and before you can run functions sourced from these packages. As such, I recommend putting the required `library()` functions at the beginning of your script for easier access.

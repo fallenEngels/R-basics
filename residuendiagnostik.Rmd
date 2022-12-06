@@ -1,0 +1,358 @@
+---
+title: "**Residuendiagnostik**"
+output: 
+  html_document: 
+    theme: darkly
+    toc: true
+---
+Index: https://fallenengels.github.io/R-basics
+
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = F, warnings = F, message = F, fig.width = 9)
+library(haven)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+```
+```{r allbus}
+data <- read_sav("Y:/Studium/13. Semester/Statistische Methoden Kurs und Tut/Übungsaufgaben/Data/allbus_2014_ZA5240_v2-1-0.sav")
+```
+## Die Basics  
+Die Residuendiagnostik ist Teil der "heiligen Dreifaltigkeit" der Inferenzstatistik - also der Frage nach der Aussagekraft eines in einer Stichprobe gefundenen Effektes über eine zugrundeliegende Population.  
+Neben der **Power-Analyse** ("Wie hoch ist die Chance, mit meiner Stichprobe einen tatsächlich bestehenden Effekt überhaupt zu finden?") und der **Signifikanzüberprüfung** ("Wie wahrscheinlich ist es, dass ein in der Stichprobe berechneter Effekt auch in der Grundgesamtheit in irgendeiner Form besteht?") befasst sich die **Residuendiagnostik** mit der Frage "Kann ich davon ausgehen, dass ein Effekt in der Grundgesamtheit überhaupt dieselbe Form annimmt wie in meiner Stichprobe?" Die Beantwortung dieser Frage ist dabei durchaus wichtig, denn wenn sich die Effektformen zwischen Stichprobe und Grundgesamtheit deutlich unterscheiden, sind die gezogene Stichprobe und die dort berechneten Effekte reine Zeitverschwendung.  
+Schematisch formuliert:  
+- Power-Analyse: Ist die Stichprobe groß genug, als dass a und b einer Regression $\alpha$ und $\beta$ in der Grundgesamtheit wiedergeben können?  
+- Signifikanzüberprüfung: Wie wahrscheinlich ist es, dass $\alpha$ und $\beta$ in der Grundgesamtheit nicht gleich 0 sind?  
+- Residuendiagnostik: Kann davon ausgegangen werden, dass $\alpha$ und $\beta$ dieselbe Form haben wie a und b in einer Regression?  
+**Hierbei sollte erwähnt werden, dass die hier besprochene Residuendiagnostik NUR FÜR OLS-REGRESSIONEN gilt! Die getroffenen Annahmen stützen sich auf Annahmen in der OLS-Berechnung, und sind somit nicht auf andere Schätzverfahren übertragbar.**
+  
+### Stichprobenverzerrungen erkennen  
+Ein (Extrem-)Beispiel: Angenommen, eine Stichprobe zieht zufällig hauptsächlich die Fälle, die einer linearen Verteilung folgen, während der tatsächliche Zusammenhang in der Grundgesamtheit eigentlich nicht-linear verläuft:  
+```{r SampleDemo, eval = F}
+# data manipulation
+data.samdem <- data %>% select(V84, V419) %>% rename(Alter = V84, Einkommen = V419) %>% 
+  filter(!is.na(Alter) & !is.na(Einkommen) & Einkommen < 3000) %>%
+  # change Einkommen to obvious non-linear
+  mutate(Einkommen_2 = (Einkommen/2) * (1+(Alter^2/1200)) + Alter * 20) %>%
+  mutate(Einkommen_2 = ifelse(Alter >= 60, Einkommen_2*(1-(Alter-60)/35), Einkommen_2))
+# regression before age effect
+summary(lm(Einkommen_2 ~ Alter, data.samdem[data.samdem$Alter < 60, ]))
+# biased sampling
+set.seed(18542304)
+data.samdem <- data.samdem %>% 
+  mutate(sampleable = ifelse(Einkommen_2 < (Alter * 72.423 + 2000 * (1 + Alter/200)) & 
+                               Einkommen_2 > (Alter * 72.423 - 2000 * (1 + Alter/200)), T, F)) %>%
+  mutate(sampled = ifelse((runif(nrow(.), 0, 1) > 0.8 & sampleable == T)|
+                           runif(nrow(.), 0, 1) > 0.97, T, F))
+
+# Plot GG
+data.samdem %>% ggplot(aes(x = Alter, y=Einkommen_2)) + geom_point() + 
+  theme_minimal() + labs(title = "Verteilung (nicht-messbare) Grundgesamtheit", y = "Einkommen",
+                         subtitle = "")
+data.samdem %>% ggplot(aes(x = Alter, y=Einkommen_2)) + geom_point() + geom_smooth() +
+  theme_minimal() + labs(title = "Verteilung (nicht-messbare) Grundgesamtheit", y = "Einkommen",
+                         subtitle = "Mit konditionalen Means")
+# Plot GG + Sample
+data.samdem %>% ggplot(aes(x = Alter, y=Einkommen_2, colour = sampled)) + geom_point() + 
+  scale_color_discrete(type = c("black", "red")) + theme_minimal() + theme(legend.position = "none") +
+  labs(title = "Grundgesamtheit und Stichprobe", y = "Einkommen", subtitle = "")
+# Plot sample
+data.samdem %>% filter(sampled == T) %>%
+  ggplot(aes(x = Alter, y=Einkommen_2)) + geom_point(colour = "red") +
+  #xlim(c(min(Einkommen), max(Einkommen))) + ylim(c(min(Alter), max(Alter)) +
+  theme_minimal() + labs(title = "Verteilung (verzerrte) Stichprobe", y = "Einkommen",
+                         subtitle = "")
+# edited and commented togehther manually
+```
+![Sampling error gif](sampling_distchange.gif)  
+Hier läge das oben angesprochene Problem vor: Während in der tatsächlichen Bevölkerung ein eindeutig nicht-linearer Zusammenhang zwischen Einkommen und Alter besteht, findet sich in unserer Stichprobe ein recht gut linear abzubildender Zusammenhang. Es besteht also eine Verletzung der oben getroffenen Inferenzannahme.  
+Das große Problem aus methodischer Sicht ist dabei jedoch, dass wir im Normalfall absolut gar nichts über die Grundgesamtheit wissen können - wenn wir die Grundgesamtheit messen könnten, wären die Stichproben an sich ja unnötig. Wie kann man also überprüfen, ob der tatsächliche Effekt in der Grundgesamtheit der selben Verteilung folgt, wie wir sie in der Stichprobe annehmen?  
+  
+Hier hilft uns ein statistischer "Kniff" weiter: Wenn wir genug Fälle in unserer Stichprobe haben, ist es quasi garantiert, dass durch reinen Zufall Fälle mit auftauchen, die eher der tatsächlichen Grundgesamtheits-Dynamik als der angenommenen Stichprobendynamik folgen - Stichwort Central Limit Theorem.  
+Anders formuliert: wir werden Ausreißer finden, die nicht zu den restlichen Daten passen (Im Beispiel oben tauchen diese beispielsweise selbst auf, obwohl sie relativ aggressiv ausgeschlossen wurden und die Stichprobe mit knapp 250 Fällen sehr klein ist). Im Gegensatz zu klassischer deskriptiver Statistik interessieren uns hierbei jedoch nicht Ausreißer in den absoluten Werten, sondern Ausreißer im Vergleich zu der berechneten Regression, weshalb wir für die folgenden Analysen auch nicht die tatsächlich erhobenen Werte, sondern die **Residuen der Regression** genauer analysieren. **Die Grundlegende Idee ist also, dass wir schauen, ob die bei nicht-Linearität erwarteten Ausreißerdynamiken tatsächlich in den Daten zu finden sind, oder ob unsere Daten den Annahmen einer linearen Regression folgen.** Wenn wir bei unserer Suche nichts finden, können wir davon ausgehen, dass mit hoher Wahrscheinlichkeit alles in Ordnung ist.  
+
+### BLUE-Annahmen und Gauss-Markov-Theorem  
+Aber wie stellt man nun fest, ob die Stichprobe tatsächlich die Dynamik in der Grundgesamtheit wiederspiegelt, also sowohl *unverzerrt* als auch *effizient* und *konsistent* die tatsächliche Verteilung beschreibt? Schlaue Menschen (insb. Carl Friedrich Gauss 1821, leicht modifiziert durch Andrey Markov 1912; vgl. [Plackett 1949](https://www.jstor.org/stable/2332682)) haben sich mit dieser Frage beschäftigt und mathematisch bewiesen, unter welchen Umständen eine OLS-Regression das beste Schätzverfahren ist. Wir können uns für die Regressionsdiagnostik nun diese Annahmen zu Hand nehmen, umdrehen, und überprüfen ob sie auf unsere Regression zutreffen.  
+Ist das der Fall, haben wir den **besten linearen unverzerrten Schätzer für unsere Daten gefunden** und unsere Regression ist **BLUE**. Sollte unsere Regression jedoch anhand dieser Annahmen nicht BLUE sein, so ist das ein Indiz dafür, dass die OLS-Regression *nicht* die beste statistische Methode zur Berechnung eines Zusammenhangs in den gegebenen Daten ist. In diesem Fall müssen wir entweder unsere Daten oder unser Messinstrument anpassen, und es erneut versuchen!  
+
+### Tl;Dr:  
+- Identifikation von Bedingungen für eine generell "beste" Regression anhand allgemeingültiger Dynamiken 
+- Überprüfung der Erfüllung dieser Kriterien für selbst berechnete Regression
+  - Wenn alles erfüllt: Gerechnete Regression ist zumindest auf theoretisch-mathematischer Ebene als "bester" Fit auf die Daten zu beschreiben, und somit für weiterführende Schritte (Schluss auf Grundgesamtheit, ...) geeignet
+  - Wenn nicht erfüllt: Gerechnete Regression ist schon auf theoretischer Ebene nicht der beste Fit für die Daten, praktisch gezogene Schlüsse sind also fraglich -> Anpassung des Modells bzw. Wechsel der Berechnungsart notwendig, um "besten" Fit zu erhalten
+
+---
+
+## Annahmen der Regressionsdiagnostik  
+
+### Annahme 1: Konstanz der Residuenvarianz (Homoskedastizität)
+#### Was ist es?  
+Nach der Berechnung einer Regression erhalten wir eine *Regressionsgerade*, aus der wir für jeden beliebigen *X*-Wert (im multivar. Modell: Jede beliebige Kombination aus *X~i~*-Werten) einen geschätzten Ŷ-Wert berechnen können. Da dabei für jede bestimmte Kombination aus *X~i~*-Werten nur ein einziger *Y*-Wert angegeben wird, können die tatsächlich erhobenen Daten nie perfekt abgebildet werden, und es verbleiben Fehler bzw. Unsicherheiten in der Schätzung. Kern dieser Annahme ist es nun, dass diese **Unsicherheiten für alle X annähernd gleich groß (-> homoskedastisch verteilt) sind**, also nicht für bestimmte X-Werte oder -Wertbereiche unterschiedliche Größen annehmen. 
+
+#### Warum ist das wichtig?  
+Lineare Regression (insb. OLS-Regression) ist im Kern eine Art der Dimensionsreduktion. Anhand von unabhängigen Variablen wird eine zu untersuchende abhängige Variable Y auf drei Terme heruntergebrochen:  
+- Den Intercept a, also den grundlegenden Wert von Y wenn alle X~i~ = 0 sind,  
+- Die Steigung b~i~ für jede unabhängige Variable X~i~, also um wie viel Y sich verändert, wenn X~i~ um 1 steigt, und  
+- Die Unsicherheit U, also wie viel "zufällige" bzw. durch die X-Variablen unerklärte Wertverteilung noch verbleibt.  
+U ist dabei theoretisch **eine einzige Zahl, die für das komplette Modell gilt**. Und hier liegt auch der Knackpunkt: sollten sich für verschiedene X-Bereiche unterschiedliche Unsicherheiten zeigen, so kann U nur noch schlecht als eine einzige, allgemeingültige Zahl wiedergegeben werden, *und die OLS-Regression ist nicht mehr das beste Schätzverfahren*.  
+Sollten die Residuen nicht-gleichverteilt sein, hat das weitreichende Konsequenzen für die **Signifikanzniveaus**, da der t-Test (-> $b/SE_b$) auf der Annahme von Varianzhomogenität beruht. Liegt keine Varianzhomogenität vor, würden für unterschiedliche Bereiche der Verteilung unterschiedliche T-Werte gelten - im schlimmsten Fall wäre diese (hypothetische) Signifikanz für bestimmte X-Gruppen nicht gegeben, und unser Modell nicht mehr allgemeingültig!
+
+#### Wie wird es überprüft?  
+##### 1. Visuelle Gruppenbildung  
+Die Überprüfung der Homoskedastizität erfolgt im Normalfall visuell. In einer bivariaten Regression werden die Residuen der Regression gegen die tatsächlichen X-Werte geplottet^[1](#notiz-1)^, während im multivariaten Fall meist der Einfachheit halber die Residuen gegen die (std.) vorhergesagten Werte der Regression geplottet werden^[2](#notiz-2)^. Wichtig für diese Annahme ist dabei jedoch, dass **nur die Kernstreuung der Werte** überprüft wird, jegliche Ausreißer werden ignoriert. Aus diesem Grund bietet es sich meistens zusätzlich an, die Residuen der Regression zu *standardisieren* bzw. zu *studentisieren*, um anhand der jw. Standardabweichungen bestimmen zu können, bei welchen Werten es sich um Ausreißer handelt, und welche Werte noch Teil der Kernstreuung sind.  
+Zudem ist wichtig, dass es für diese Annahme **jegliche Unterschiede relevant sind**! Auch in Fällen, in denen keine systematische Zu- bzw. Abnahme feststellen lässt, ist die Annahme der Homoskedastizität verletzt, sobald sich ein **bedeutender Teil der Werteverteilung** von einem anderen Teil unterscheidet! Einzige Einschränkung: Insbesondere für numerische Variablen (Alter, Einkommen, ...) bietet es sich meist an, nicht jeden X-Wert einzeln zu überprüfen, sondern nach *Gruppendynamiken* zu suchen, da für eine einzelne Kategorie (19-Jährige, Personen mit exakt 1.042€ Einkommen) meist nicht genug Fälle vorhanden sind, um eine sinnvolle Aussage zu machen.  
+  
+##### 2. Levene-Test  
+Möchte man seine visuell festgestellten Gruppen statistisch überprüfen, oder ist sich bei der Gruppenbildung nicht 100%ig sicher, bietet sich die Durchführung eines **Levene-Tests** an. Hierfür wird den Daten eine neue Variable hinzugefügt, die die Daten den jw. Gruppen zuordnet. Anhand dieser Gruppen werden nun die Residuen der Regression im Levene-Test auf Gruppenunterschiede überprüft. Ist der Test dabei nicht signifikant, ist alles perfekt und die visuell identifizierten Unterschiede sind nicht gravierend. Ist er jedoch signifikant, so bedeutet dies, dass **zwischen mindestens zwei der gebildeten Gruppen ein signifikanter Varianzunterschied besteht**. Wichtig: Der Levene-Test kann dabei keine Aussage machen, *zwischen welchen* zwei Gruppen die Unterschiede bestehen (das gilt natürlich nur, wenn mehr als zwei Gruppen in der Verteilung identifiziert und für den Test codiert wurden) - lediglich *dass* mindestens zwei der gebildeten Gruppen nicht varianzhomogen sind!  
+
+#### Veranschaulichung
+```{r A1Plots, fig.height=5}
+dat <- data.frame(x = round(runif(1500, 1, 100)), y = runif(1500, -3150, 3150))
+plot_grid(
+  dat %>%
+    mutate(y = scale(y)) %>%
+    ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
+    geom_hline(yintercept = 1.9, linetype = 2, colour = "blue") + geom_hline(yintercept = -1.9, linetype = 2, colour = "blue") +
+    labs(y = "std. Residuen", subtitle = "Keine Dynamiken, keine Verletzung A1") + theme_minimal(),
+  dat %>%
+    mutate(y = ifelse(x %in% c(35:75) & runif(1500,0,1) > 0.9, y + runif(1500, 4000, 8000), y)) %>%
+    mutate(y = scale(y)) %>%
+    ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
+    geom_hline(yintercept = 1.5, linetype = 2, colour = "blue") + geom_hline(yintercept = -1.75, linetype = 2, colour = "blue") +
+    labs(y = "std. Residuen", subtitle = "Ausreißer, aber keine Verletzung A1") + theme_minimal(),
+  dat %>% 
+    mutate(y = y * (0.5+x/400)) %>% mutate(y = scale(y)) %>%
+    ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
+    geom_abline(intercept = 1.5, slope = 0.007, linetype = 2, colour = "blue") +
+    geom_abline(intercept = -1.55, slope = -0.007, linetype = 2, colour = "blue") +
+    labs(y = "", subtitle = "Stetige Varianzveränderung, Verletzung A1") + theme_minimal(),
+  dat %>% 
+    mutate(y = ifelse(x < 25, y * (0.5+x/75), y), y = ifelse(x %in% c(26:50), y *(0.80+x/400), y)) %>%
+    mutate(y = ifelse(x > 75, y * (1.85-x/75), y), y = ifelse(x %in% c(51:75), y *(1.10-x/400), y)) %>% 
+    mutate(y = scale(y)) %>% 
+    ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
+    geom_path(aes(x = x, y = y), data.frame(x = c(0, 25, 50, 75, 100), y = c(1.25, 2, 2.25, 2, 1.25)), 
+              linetype = 2, colour = "blue") +
+    geom_path(aes(x = x, y = y), data.frame(x = c(0, 25, 50, 75, 100), y = c(-1.25, -2.1, -2.3, -2.1, -1.25)), 
+              linetype = 2, colour = "blue") + 
+    labs(y = "", subtitle = "Verschiedene Varianzdynamiken, Verletzung A1") + theme_minimal(),
+  dat %>% 
+    mutate(y = ifelse(x %in% c(30:39), y *(0.35), y)) %>% 
+    mutate(y = scale(y)) %>% 
+    ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
+    geom_path(aes(x = x, y = y), data.frame(x = c(0, 30, 30, 39, 39, 100), y = c(1.95, 1.95, 0.7, 0.7, 1.95, 1.95)), 
+              linetype = 2, colour = "blue") +
+    geom_path(aes(x = x, y = y), data.frame(x = c(0, 30, 30, 39, 39, 100), y = c(-2, -2, -0.8, -0.8, -2, -2)), 
+              linetype = 2, colour = "blue") +
+    labs(y = "", subtitle = "Verschiedene Varianzdynamiken, Verletzung A1") + theme_minimal(),
+  dat %>% 
+    mutate(y = ifelse(x %in% c(30:39), y + 1000, y), y = ifelse(x %in% c(50:59), y - 1000, y)) %>% 
+    mutate(y = scale(y)) %>% 
+    ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
+    geom_path(aes(x = x, y = y), data.frame(x = c(0, 29, 29, 39, 39, 50, 50, 59, 59, 100), 
+                                            y = c(1.75, 1.75, 2.3, 2.3,1.8, 1.8, 1.25, 1.25, 1.75, 1.75)), 
+              linetype = 2, colour = "blue") +
+    geom_path(aes(x = x, y = y), data.frame(x = c(0, 30, 30, 39, 39, 49, 49, 60, 60, 100), 
+                                            y = c(-1.85, -1.85, -1.25, -1.25,-1.85, -1.85, -2.35, -2.35, -1.85, -1.85)), 
+              linetype = 2, colour = "blue") +
+    labs(y = "", subtitle = "Verschiedene Varianzen, Verletzung A1") + theme_minimal(),
+  nrow = 2
+)
+```
+
+#### Behebung
+Der einzige wirkliche Weg, Varianzheterogenität zu "beheben", ist die zur Identifikation eingesetzte Gruppenbildung. Lassen sich Gruppen anhand der Grafiken identifizieren, lohnt sich meist eine Suche nach einer methodischen Rechtfertigung dieser Gruppierung und einer Aufnahme ins Modell als explizite Variable. In einer erneuten Regression sollte dann keine (oder zumindest eine deutlich schwächer ausgeprägte) Varianzheterogenität auftreten.  
+  
+  
+### Annahme 2: Der Erwartungswert von U ist für jeden X-Wert = 0  
+#### Was ist es?  
+Wie bereits diskutiert, verteilen sich die tatsächlich erhobenen Werte für jedes *X~i~* um den jeweils vorhergesagten Y-Wert. Basierend auf Annahme 1 (und 5) geht man dabei davon aus, das in einer "guten" OLS-Regression der Mittelwert des Fehlers für jedes X = 0 ist - sprich, dass sich für jede mögliche Fallkombination alle Fehler gegenseitig ausgleichen.  
+Dies gilt dabei jedoch nicht nur für die in der Stichprobe erhobenen Werte, sondern idealerweise auch in der Grundgesamtheit. Leider lässt sich normalerweise die Verteilung der Fehler in der Grundgesamtheit nicht überprüfen (da sie nicht erhebbar ist), weshalb diese Annahme auch für den Großteil aller statistischen Untersuchungen nicht überprüfbar ist.  
+
+#### Warum ist das wichtig?  
+Wie bereits festgestellt, sollte ein in der Stichprobe beobachteter Effekt am Besten auch in der Grundgesamtheit halten. Wenn aber in der Grundgesamtheit ein bestimmter Teil der Verteilung nur schlecht bzw. verzerrt wiedergegeben werden kann, ist die Aussagekraft der in der Stichprobe berechneten Effekte fraglich. Dies hat Folgen für das komplette Modell, da dadurch die **Linearität des Zusammenhangs an sich in Frage gestellt wird**!  
+
+#### Wie wird es überprüft?  
+Wie bereits erwähnt, müsste man für die Überprüfung dieser Annahme die Werteverteilung in der Grundgesamtheit kennen. Da dies meist nicht der Fall ist, ist diese Annahme im Normalfall nicht überprüfbar. Eine grundlegende Möglichkeit gibt es jedoch: Eine Art "Annäherung" an die Grundgesamtheit durch Betrachtung anderer Stichproben. Wenn sich Forschung aus anderen Stichproben finden lässt, die die Linearität desselben unterliegenden Effektes infrage stellt, kann das ein Indiz für eine Verletzung dieser Annahme sein. Eine letztendliche, finale Aussage lässt sich jedoch nie treffen.  
+  
+  
+### Annahme 3: Die Werte von U sind unabhängig von Werten von X  
+#### Was ist es?  
+Wir haben in Annahme 1 bereits gesehen, dass eine ungleiche Verteilung der Residuen über X-Werte ein Indiz für Probleme des Modells sein kann. Während es dabei jedoch um generelle Verletzungen egal welcher Dynamik ging, bezieht sich Annahme 3 auf **lineare Dynamiken in diesen Residuen**. Hierbei wird überprüft, ob sich die Varianz der tatsächlichen Y-Werte in Abhängigkeit von X verändert (vgl. Bsp. 3 in Annahme 1).  
+
+#### Warum ist das wichtig?  
+Um der beste Schätzer sein zu können, muss die berechnete Analyse nicht nur gut auf die Daten passen, sondern auch alle wichtigen Erklärungsdynamiken abbilden. Eine Verletzung der Annahme 3 zeigt jedoch, dass selbst nach Herausrechnung der Effekte aller X-Variablen noch erklärbare Varianz im Modell verbleibt (da die Varianz sich in Abhängigkeit von X verändert).  
+Tritt dies auf, ist das ein gutes Indiz, dass weitere wichtige Variablen oder Interaktionseffekte in der berechnteten Regression unbeachtet geblieben sind. Wird diese Dynamik nicht beachtet, hat das analog zu Annahme 1 **Konsequenzen für den U-Term** der linearen Regression (und somit für Standardfehler und t-Tests, vgl. oben). Hierbei geht es jedoch noch weiter, da durch das Ignorieren von erklärbarer Varianz auch die **Erklärungsleistung des Gesamtmodells unterschätzt** wird.  
+
+#### Wie wird es überprüft?  
+Analog zu Annahme 1 findet die Überprüfung im ersten Schritt *visuell* statt. Dabei wird das Augenmerk auf lineare Veränderungen in den Residuen in Abhängigkeit von X (bivariat) bzw. Ŷ (multivariat) gelegt. Lässt sich in diesen Grafiken eine lineare Zu- bzw. Abnahme in der Streuung von U in Abhängigkeit von X/Ŷ feststellen, lässt sich diese auch mathematisch durch die Berechnung einer Korrelation zwischen U und X/Ŷ überprüfen. Ist das Ergebnis *nicht signifikant*, besteht keine relevante Abhängigkeit. Ist das Ergebnis jedoch *signifikant*, lohnt sich ein Vergleich des Korrelationskoeffizienten r der Korrelation mit dem R^2^-Wert des Regressionsmodells (-> r quadrieren) sowie mit klassischen Stärkemaßen für r-Werte der jeweiligen Forschungsdisziplin.  
+
+#### Warte, ist das nicht einfach Annahme 1?  
+Jein. Annahme 3 und Annahme 1 haben zwar einen deutlichen Overlap, stehen jedoch beide für sich in der Art und Weise, wie sie Regressionsergebnisse beeinflussen. Identifiziert man eine Dynamik, die Annahme 3 verletzt, ist *immer auch Annahme 1 verletzt* (vgl. Annahme 1 Beispielgrafik 3). Andersherum kann es jedoch zu Verletzungen von Annahme 1 kommen, ohne dass Annahme 3 verletzt wird (vgl. Grafiken 4-6). Ein weiterer Unterschied ist, dass für Annahme 3 **Ausreißer relevant sind**, während Annahme 1 diese aktiv ausblendet.  
+Der Größte Unterschied liegt jedoch in der Fehlerbehebung: Während Annahme 1 darauf abzielt, Aussagen über die *Einheitlichkeit des Modells* zu treffen, zielt Annahme 3 darauf ab, die *Vollständigkeit des Modells* zu überprüfen, und eventuell übersehene Einflüsse aufzudecken. Dementsprechend unterscheidet sich auch die Fehlerbehebung zwischen beiden Ansätzen deutlich.  
+
+#### Behebung  
+Die Behebung einer Verletzung besteht hauptsächlich in der Suche nach "vergessenen" unbeobachteten Effekten und einer anschließenden Neuspezifizierung des Modells. Neben grundsätzlich neuen Variablen können jedoch auch übersehene Interaktionseffekte Grund der identifizierten Dynamik sein. Um dies herauszufinden bietet sich die Betrachtung von bspw. Korrelationsmatrizen der UVs an, anhand derer sich mögliche stark korrelierende UVs als "Interaktionskandidaten" hervorheben können.  
+
+
+### Annahme 4: U-Werte sind untereinander unkorreliert  
+#### Was ist es?  
+Berechnet man komplexere Zusammenhänge, für die mehrere Teil-Regressionen kombiniert werden (Pfadmodelle, Mehrebenenmodelle, Panelregressionen), erhält man dementsprechend für jedes Teilmodell auch unterschiedliche Residuen U. Um einen besten Schätzer zu gewährleisten, sollten diese Residuen dabei untereinander unkorreliert sein.  
+
+#### Warum ist das wichtig?  
+Wenn Fehler untereinander korreliert sind (bspw. weil ein Befragter zu mehreren Messzeitpunkten immer den selben Fehler im Frageverständnis begeht), führt das zu einer Fehlschätzung der Standardfehler, und somit auch wieder zu einer Falschbewertung des Effektes (-> $b/SE_b$).
+
+#### Wie wird es überprüft?  
+Die Überprüfung ist nur schwer möglich, insbesondere da es keine schöne Visualisierungsmöglichkeit gibt. Zur Überprüfung von Autokorrelation gibt es zwar den s.g. **Durbin-Watson-Test**, dieser überprüft jedoch nur die Korrelation von zwei aufeinanderfolgenden U-Verteilungen, was in Modellen mit mehreren U-Werten zu deutlichem Aufwand in der Analyse führen kann.  
+Glücklicherweise ist diese Annahme nur für Vorgänge relevant, die in sich sehr komplex sind, und nur selten auftreten. Dementsprechend bedürfen die Umstände dieser Annahme bereits eine tiefere Einarbeitung in komplexere Themen, wobei sich meist eine spezifische Lösung für das jeweilige Einsatzgebiet offenbart. Im Normalfall bleibt man von den Konsequenzen dieser Annahmen glücklicherweise verschont.  
+
+### Annahme 5: Die Residuen müssen für alle X normalverteilt sein
+#### Was ist es?  
+Grundlegend ist diese Annahme kein Bestandteil des klassischen Gauss-Markov-Theorems, und für die Berechnung einer guten Regression nicht relevant. Dennoch ist es für viele Annahmen in der statistischen Schätzung eine theoretisch benötigte Grundannahme, weshalb sie auch praktisch für Regressionen überprüft werden sollte.  
+
+#### Warum ist das wichtig?  
+Viele der Tests, die in der Inferenzstatistik zum Schluss von Stichproben auf Grundgesamtheiten angewendet werden, stützen sich auf eine Normalverteilung der b-Koeffizienten. Wenn jedoch die unterliegenden Daten in der Berechnung dieser Koeffizienten nicht normalverteilt sind, stellt sich die Frage inwiefern diese Annahme dann noch für die berechneten Werte gelten kann.  
+
+#### Wie wird es überprüft?  
+Bei der Überprüfung dieser Annahme driften Theorie und Forschungspraxis meist weit auseinander. In der Theorie müsste eigentlich für jeden X-Wert überprüft werden, ob die jeweiligen Residuen um den vorhergesagten Wert normalverteilt sind. Während dies für bivariate Modelle mit kategorialer X-Variable noch umsetzbar ist:  
+```{r normal base, fig.height=3}
+data.a5dem <- data %>% select(V84, V419, V86) %>% rename(Alter = V84, Einkommen = V419, Bildung = V86) %>% 
+  filter(Einkommen < 3000) %>% filter(!is.na(Bildung) & !is.na(Einkommen)) %>% 
+  mutate(Bildung = ifelse(Bildung %in% c(6,7), 0, Bildung))
+lm_a51 <- lm(Einkommen ~ Bildung, data = data.a5dem)
+# summary(lm_a5)
+pdat <- data.frame(Bildung = data.a5dem$Bildung, Resid = scale(lm_a51$residuals))
+plot_grid(
+  pdat %>% ggplot(aes(x = Bildung, y = Resid)) + geom_jitter() + geom_hline(yintercept = 0, colour = "red", size = 1) + 
+    theme_minimal(),
+  plot_grid(
+    pdat %>% filter(Bildung == 0) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_minimal() +
+      labs(y = "Residual density", x = "Residuals X = 0"),
+    pdat %>% filter(Bildung == 1) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_minimal() +
+      labs(y = "Residual density", x = "Residuals X = 1"),
+    pdat %>% filter(Bildung == 2) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_minimal() +
+      labs(y = "Residual density", x = "Residuals X = 2"),
+    pdat %>% filter(Bildung == 3) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_minimal() +
+      labs(y = "Residual density", x = "Residuals X = 3"),
+    pdat %>% filter(Bildung == 4) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_minimal() +
+      labs(y = "Residual density", x = "Residuals X = 4"),
+    pdat %>% filter(Bildung == 5) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_minimal() +
+      labs(y = "Residual density", x = "Residuals X = 5"),
+    nrow = 2
+  )
+)
+```
+Wird dies bereits für bivariate Regressionen mit vielen X-Kategorien zu einem deutlichen Problem:  
+```{r normal more, fig.height=3}
+lm_a52 <- lm(Einkommen ~ Alter, data = data.a5dem)
+# summary(lm_a52)
+pdat <- data.frame(Alter = data.a5dem$Alter, Resid = scale(lm_a52$residuals))
+for(i in sort(unique(pdat$Alter))){
+  # generate var name for plot
+  curr <- paste("plot_", i, sep = "")
+  # generate plot
+  p_i <- pdat %>% filter(Alter == i) %>%ggplot(aes(x = Resid)) + geom_histogram(aes(y = ..density..)) + 
+      stat_function(fun = dnorm, args = list(mean = mean(pdat$Resid), sd = sd(pdat$Resid))) + theme_void() +
+      labs(y = "Residual density", x = paste("Residuals X =", i))
+  # assign plot to var
+  assign(curr, p_i)
+}
+plot_grid(
+  pdat %>% ggplot(aes(x = Alter, y = Resid)) + geom_jitter() + geom_hline(yintercept = 0, colour = "red", size = 1) + 
+    theme_minimal(),
+  plot_grid(
+    plot_18, plot_19, 
+    plot_20, plot_21, plot_22, plot_23, plot_24, plot_25, plot_26, plot_27, plot_28, plot_29, 
+    plot_30, plot_31, plot_32, plot_33, plot_34, plot_35, plot_36, plot_37, plot_38, plot_39,
+    plot_40, plot_41, plot_42, plot_43, plot_44, plot_45, plot_46, plot_47, plot_48, plot_49,
+    plot_50, plot_51, plot_52, plot_53, plot_54, plot_55, plot_56, plot_57, plot_58, plot_59,
+    plot_60, plot_61, plot_62, plot_63, plot_64, plot_65, plot_66, plot_67, plot_68, plot_69,
+    plot_70, plot_71, plot_72, plot_73, plot_74, plot_75, plot_76, plot_77, plot_78, plot_79,
+    plot_80, plot_81, plot_82, plot_83, plot_84, plot_85, plot_86, plot_87, plot_88, plot_89,
+    plot_90, plot_91, nrow = 7
+  ), rel_widths = c(1,2)
+)
+```
+  
+Im multivariaten Fall wird dieses Problem dabei sogar *exponentiell schlimmer*, da eigentlich eine Normalverteilung **für jede einzelne Wertekombination** überprüft werden sollte (also für x1=18;x2=0, x1=18,x2=1, x1=18,x2=2, ...).  
+Da das Wahnsinn ist, den nie jemand tatsächlich umsetzen wollen würde, gibt es jedoch eine einfacher umzusetzende Annäherung: Den **Test der Gesamtheit der Residuen auf Normalverteilung**. Die grundlegende Idee dahinter: Wenn man schon nicht jede Wertekombination einzeln auf Normalverteilung testen kann, sollten die Residuen zumindest in ihrer *Gesamtheit* normalverteilt sein.  
+  
+Egal ob man nun jede Wertekombination einzeln oder die Gesamtheit der Residuen auf einmal testet, das generelle Procedere ist dasselbe. Wie oben abgebildet, lässt sich die Nnormalverteilung grafisch durch die Erstellung von Histogrammen oder QQ-Plots testen. Wie bei jeder anderen Verteilung lässt sich auch in diesem Fall die Normalität der Verteilung mit **Schiefe- und (Excess-)Kurtosismaßen** bewerten. Je nach Striktheit der Forschungsperspektive gelten dabei Maße zwischen ±1 bzw. ±3 als annähernd normalverteilt.  
+Eine zusätzliche mathematische Überprüfung der Normalität bietet der **Kolmogorow-Smirnow-Test**. Aufgabe dieses Tests ist die Überprüfung der Nullhypothese, dass **zwei Variablen aus der selben grundlegenden Verteilung stammen** (zwei-Stichproben-Test). In einer hier relevanteren abgewandelten Form kann er auch benutzt werden um zu überprüfen, ob eine Variable aus einer Verteilung stammt (ein-Stichproben-Test, auch: *Kolmogorow-Smirnow-Anpassungstest*). Der Test wird dabei signifikant, wenn bedeutende Unterschiede zwischen beiden Variablen bzw. Variable und Verteilung festgestellt werden, und somit Annahme 5 verletzt ist.  
+Dabei ist die Anmerkung wichtig, dass der KS-Test **mit steigender Fallzahl gerne signifikant wird**, und somit nicht unbedingt als alleinige Quelle herangezogen werden sollte. Ein *nicht-signifikanter* KS-Test ist jedoch das Best-Case-Szenario für die Überprüfung dieser Annahme.
+
+### Und wann genau muss ich das machen?  
+Auf die wohl wichtigste Frage der Regressionsdiagnostik geben Theorie und Praxis unterschiedliche Antworten: Rein theoretisch *sollte* eine solche Residuendiagnostik **für jede berechnete Regression** durchgeführt werden, solange ein **Schluss auf die Grundgesamtheit** aus ihr gezogen werden soll.   
+Da Regressionsdiagnostik aber immer mit großem Aufwand verbunden ist, ist es in der Praxis meist so, dass die hier beschriebene Annahmenüberprüfung (wenn überhaupt) **zumindest für das finale Modell** durchgeführt werden sollte. Werden dabei Verletzungen festgestellt, und das Modell oder die Daten verändert, gilt die natürlich auch für das so entstehende *neue* finale Modell.  
+
+---
+
+## Addendum 1: Multikollinearität - sind X~i~ unabhängig voneinander?  
+#### Was ist es?  
+In multivariten Modellen hantieren wir mit einer Vielzahl an unabhängigen Variablen X~i~ und deren Einfluss auf Y. Wie der Name bereits sagt, gehen wir dabei davon aus, dass alle X~i~ *unabhängig* sind, also **Selbst nicht von externen Faktoren beeinflusst werden**. Stellen wir jedoch fest, dass bspw. X~1~ in seiner Ausprägung von X~2~ abhängt, so herrscht **Multikollinearität** im Modell. In den meisten Forschungsfeldern, in denen sich nicht alle Faktoren experimentell regulieren lassen, lautet die Frage hierbei meist: *Wie stark ist die Multikollinearität ausgeprägt?*, da sie sich nie ganz verhindern lässt. Während dies auf den ersten Blick vielleicht ähnlich wie Annahme 3 klingt, ist die Fragestellung komplett unterschiedlich: In Annahme 3 ging es um *übersehene X-Effekte in der Erklärung von Y*, während es hier um die *Stabilität (bzw. individuelle Erklärungsleistung) der verwendeten X selbst* geht.  
+
+#### Warum ist das wichtig?  
+Herrscht Multikollinearität in einem Modell, schmälert sich die tatsächliche *individuelle Erklärungsleistung* der betroffenen Variablen. Dies hat zur Folge, dass "valide" Fallzahlen oder Effektstärken dieser Variable unterschätzt werden, wodurch die **Standardfehler sehr groß werden können** - mit den bereits beschriebenen Folgen für Signifikanztests. Zudem können **Schätzungsinstabilitäten** auftreten, da die Aufnahme/Entfernung einer einzelnen X~i~-Variable bereits einen "Dominoeffekt" der Veränderung von Effektstärken anderer X~i~-Variablen auslösen kann. In diesem Fall stellt sich dann die Frage nach der **Vertrauenswürdigkeit** des berechneten Modells.  
+
+#### Wie wird es überprüft?  
+Da Multikollinearität ein multivariates Problem ist, lässt sie sich nicht wie viele der präsentierten Annahmen bivariat grafisch überprüfen. Stattdessen gibt es jedoch statistische Maße für die Berechnung der Multikollinearität. Insbesondere **Toleranz** und **VIF** sind hierbei die wichtigen Maße. Für Toleranz liegt dabei die Untergrenze bei einem Wert von 0,2 (20% eigene Varianz, 80% durch andere Variablen), da VIF = 1/Toleranz ist, liegt hier die Obergrenze bei einem Wert von 5 (1/0,2). In R gibt es mehrere Packages, die diese Werte automatisch berechnen können: `performance` bietet die `check_collinearity()`-Funktion, `mctest` bietet die `imcdiag()`-Funktion, und `plot_model(type = "diag")` aus dem `sjPlot`-Package bietet unter Anderem eine grafische Darstellung der VIF-Werte.  
+
+#### Behebung  
+Tritt Multikollinearität auf, so ist das meist ein Zeichen, dass entweder irgendetwas grundsätzlich an dem Modell verändert werden muss. Dies passiert häufig bei falscher Dummysierung bzw. Indexbildung, wenn nicht k-1 Dummies gebildet wurden (und der Referenzdummy gemeinsam mit allen anderen Dummies 100% der Selbst-Verteilung erklärt), oder wenn Variablen zur Kostruktion des Indexes gemeinsam mit dem Index aufgenommen wurden (und die Variable quasi ihren eigenen Anteil am Index "weg-erklärt"). In diesem Fall ist eine Prüfung und Überarbeitung des Modells meist der Weg zur Behebung von Multikollinearität.  
+Dieses Problem tritt zusätzlich auch gerne auf, wenn Interaktionsvariablen im Modell vorkommen - schließlich werden diese perfekt durch die beiden Variablen, aus denen sie gebildet wurden erklärt. Tritt dies auf, kann es zwar nicht behoben werden, ist jedoch auch nicht weiter problematisch, da sich die Multikollinearität hier rein sachlogisch erklären lässt. Für alle anderen Fälle ist die Behebung von Multikollinearität deutlich schwerer und muss von Modell zu Modell entschieden werden. Vielleicht findet sich für bspw. eine hohe MK zwischen X~1~ und X~2~ irgendeine unbeobachtete X-Variable, die als erklärende Variable für beide Variablen wirkt.  
+
+
+## Addendum 2: Linearität
+#### Was ist es?  
+Wie zu Beginn erklärt, geht es bei der Regressionsdiagnostik darum, zu überprüfen, ob ein in der Stichprobe linearer Effekt auch (wie angenommen) in der Grundgesamtheit linear ist. Eine wichtige Frage haben wir dabei jedoch unterschlagen: **Ist der Effekt in unserer Stichprobe überhaupt linear?**
+
+#### Warum ist das wichtig?  
+Wie zuvor mehrfach erwähnt, dreht sich lineare Regression um lineare Zusammenhänge. Wenn aber der grundlegende Zusammenhang bereits nicht-linear ist, werden die Koeffizienten unter Umständen falsch geschätzt, und **es kommt zu "falschen" Messwerten** (Welche Aussagekraft haben b und R^2^ in diesem Fall überhaupt?)!
+
+
+#### Wie wird es überprüft?  
+Analog zu Annahme 1 wird hierfür wieder in Grafiken nach Dynamiken in den Residuenverteilungen gesucht. Hier geht es aber nicht um *Verteilungsdynamiken* per se, sondern das Hauptaugenmerk liegt auf der **Identifizierung unterschiedlicher Steigungsdynamiken** in Abweichung von der Regressionslinie (wenn "flach gelegt": y = 0). Dabei kann bspw. die Aufnahme einer Loess-Linie in die Grafik bei der Identifizierung helfen (ggplot: `geom_smooth()`). Auch hier gilt wie bei Annahme 1, dass Ausreißer meist ignoriert werden, und je nach Modell entweder X (bivariat) bzw. geschätzte Y-Werte (multivariat) gegen U geplottet werden.  
+Zusätzlich lassen sich hierfür im multivariaten Modell auch so genannte *partielle Residuenplots* betrachten, um für jede UV einzeln Linearität überprüfen zu können. Der einfachste Weg hierzu ist die `crPlot()`-Funktion aus dem `car`-Paket. Dabei ist jedoch zu beachten, dass die resultierenden Plots auf base-R, und nicht auf ggplot basieren (und auch dementsprechend aussehen), und dass für diese Funktion *keine Interaktionen* in der Regressionsfunktion spezifiziert sein sollten - Interaktionen können stattdessen explizit als Variablen dem Datensatz hinzugefügt werden, wenn sie mit untersucht werden sollen.  
+
+#### Test und Behebung  
+Lassen sich Gruppen mit Steigungsunterschieden identifizieren, sind die Schritte zur genaueren Analyse gleich den Schritten zur Behebung des Modells: explizite Gruppenbildung in den Daten. Dies kann z.B. über eine *Aufteilung des Datensets in mehrere Subsets* bzw. die Aufteilung der Daten über *kategoriale Filter-Variable* (Vorteil: genaue, vergleichende Aussagen zw. Gruppen möglich) erfolgen, jedoch gibt es auch weitere Alternativen wie *Dummybildung* (k-1, Vorteil: Quasi Mittelwertvergleich zwischen Gruppen) oder die Aufnahme von *Interaktionseffekten* ins Modell (Vorteil: metrisches Messniveau wird erhalten).  
+Egal, welcher Weg gewählt wird: Zeigen sich in einer neuen Regression Unterschiede in den b-Koeffizienten zwischen den Gruppen, so ist die Linearitätsannahme für den Gesamtdatensatz verletzt, und die Gruppenbildung für weitere Analysen mit den verwendeten Variablen zwingend notwendig, um zumindest ein Maß an Linearität zu bewahren!  
+
+---
+
+##### Notiz 1:
+Im Kontext der Visualisierung bedeutet das für bivariate Fälle, dass die Regressionsgerade einfach "flach" gelegt wird. Plakativ: Schätzen wir anhand der Regressionsgeraden $ŷ = 50 + 10*x$ für X = 5 den Y-Wert 100 und für x = 7 den Wert 120, haben aber in unseren Daten die vier Fälle F1(5|150), F2(5|75), F3(7|100) und F4(7|175) so könnten wir das für die grafische Überprüfung der A1 auch mit einer Visualisierung der tatsächlichen Werte für X und Y überprüfen (Abb. links). Da es je nach "Steilheit" der Regressionsgeraden jedoch schwer sein kann, Verteilungsunterschiede zwischen X-Werten festzustellen, ist es meist einfacher, die Regressionsgerade auf 0 zu legen, und statt der tatsächlichen Werte die Abweichung von der Regressionsgeraden (also U) auf der Y-Achse zu plotten (Abb. rechts). In unserem Fall wären dann die Werte F1(5|50), F2(5|-25), F3(7|-20) und F4(7|55) in Relation zu der berechneten Regressionsgerade. Während hier die Überprüfung der A1 im linken Plot etwas schwer fällt, ist es im rechten Plot deutlich einfacher:  
+```{r add1, fig.height=2, fig.width = 8}
+plot_grid(
+  ggplot(data = data.frame(x = c(5,5,7,7), y = c(150,75,100,175)), aes(x = x, y = y)) + 
+    geom_point() + geom_abline(intercept = 50, slope = 10, colour = "red") + 
+    xlim(c(0, 10)) + ylim(c(0, 200)) + theme_minimal() + labs(title = "Plot X vs. Y"),
+  ggplot(data = data.frame(x = c(5,5,7,7), y = c(50, -25,-20,55)), aes(x = x, y = y)) + 
+    geom_point() + geom_hline(yintercept = 0, colour = "red") + 
+    xlim(c(0, 10)) + ylim(c(-100, 100)) + theme_minimal() + 
+    labs(y = "u", title = "Plot X vs. Residuen der Regression")
+)
+```
+
+##### Notiz 2:
+Das hat zwei hauptsächliche Gründe: Zum Einen kann es je nach Anzahl unabhängiger Variablen und deren Skalierung ein großer Aufwand sein, jede Variable individuell auf Verteilungsunterschiede zu überprüfen. Zum Anderen ist es im multivariaten Modell nicht *ganz* so schlimm, wenn Residuen für eine einzelne Variable diese Annahme verletzen, **solange sie für das Gesamtmodell hält**. Ist das der Fall, gleichen sich die Verletzungen in individuellen X-Variablen bei Betrachtung des Gesamtmodells miteinander aus, und  ein Erzwingen der A1 für einzelne Variablen würde unter Umständen sogar zu einer Verschlechterung des Gesamtmodells führen!  
+
+
+---
+```{python, include = F}
+import os
+from datetime import datetime
+lastmodified = datetime.fromtimestamp(os.stat('residuendiagnostik.Rmd').st_mtime)
+```
+
+**Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
+**.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/residuendiagnostik.Rmd
