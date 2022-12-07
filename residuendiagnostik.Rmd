@@ -101,11 +101,11 @@ U ist dabei theoretisch **eine einzige Zahl, die für das komplette Modell gilt*
 Sollten die Residuen nicht-gleichverteilt sein, hat das weitreichende Konsequenzen für die **Signifikanzniveaus**, da der t-Test (-> $b/SE_b$) auf der Annahme von Varianzhomogenität beruht. Liegt keine Varianzhomogenität vor, würden für unterschiedliche Bereiche der Verteilung unterschiedliche T-Werte gelten - im schlimmsten Fall wäre diese (hypothetische) Signifikanz für bestimmte X-Gruppen nicht gegeben, und unser Modell nicht mehr allgemeingültig!
 
 #### Wie wird es überprüft?  
-##### 1. Visuelle Gruppenbildung  
+##### Visuelle Gruppenbildung  
 Die Überprüfung der Homoskedastizität erfolgt im Normalfall visuell. In einer bivariaten Regression werden die Residuen der Regression gegen die tatsächlichen X-Werte geplottet^[1](#notiz-1)^, während im multivariaten Fall meist der Einfachheit halber die Residuen gegen die (std.) vorhergesagten Werte der Regression geplottet werden^[2](#notiz-2)^. Wichtig für diese Annahme ist dabei jedoch, dass **nur die Kernstreuung der Werte** überprüft wird, jegliche Ausreißer werden ignoriert. Aus diesem Grund bietet es sich meistens zusätzlich an, die Residuen der Regression zu *standardisieren* bzw. zu *studentisieren*, um anhand der jw. Standardabweichungen bestimmen zu können, bei welchen Werten es sich um Ausreißer handelt, und welche Werte noch Teil der Kernstreuung sind.  
 Zudem ist wichtig, dass es für diese Annahme **jegliche Unterschiede relevant sind**! Auch in Fällen, in denen keine systematische Zu- bzw. Abnahme feststellen lässt, ist die Annahme der Homoskedastizität verletzt, sobald sich ein **bedeutender Teil der Werteverteilung** von einem anderen Teil unterscheidet! Einzige Einschränkung: Insbesondere für numerische Variablen (Alter, Einkommen, ...) bietet es sich meist an, nicht jeden X-Wert einzeln zu überprüfen, sondern nach *Gruppendynamiken* zu suchen, da für eine einzelne Kategorie (19-Jährige, Personen mit exakt 1.042€ Einkommen) meist nicht genug Fälle vorhanden sind, um eine sinnvolle Aussage zu machen.  
   
-##### 2. Levene-Test  
+##### Levene-Test  
 Möchte man seine visuell festgestellten Gruppen statistisch überprüfen, oder ist sich bei der Gruppenbildung nicht 100%ig sicher, bietet sich die Durchführung eines **Levene-Tests** an. Hierfür wird den Daten eine neue Variable hinzugefügt, die die Daten den jw. Gruppen zuordnet. Anhand dieser Gruppen werden nun die Residuen der Regression im Levene-Test auf Gruppenunterschiede überprüft. Ist der Test dabei nicht signifikant, ist alles perfekt und die visuell identifizierten Unterschiede sind nicht gravierend. Ist er jedoch signifikant, so bedeutet dies, dass **zwischen mindestens zwei der gebildeten Gruppen ein signifikanter Varianzunterschied besteht**. Wichtig: Der Levene-Test kann dabei keine Aussage machen, *zwischen welchen* zwei Gruppen die Unterschiede bestehen (das gilt natürlich nur, wenn mehr als zwei Gruppen in der Verteilung identifiziert und für den Test codiert wurden) - lediglich *dass* mindestens zwei der gebildeten Gruppen nicht varianzhomogen sind!  
 
 #### Veranschaulichung
@@ -128,7 +128,7 @@ plot_grid(
     ggplot(aes(x, y)) + geom_point() + geom_hline(yintercept = 0, colour = "red", size = 1) +
     geom_abline(intercept = 1.5, slope = 0.007, linetype = 2, colour = "blue") +
     geom_abline(intercept = -1.55, slope = -0.007, linetype = 2, colour = "blue") +
-    labs(y = "", subtitle = "Stetige Varianzveränderung, Verletzung A1") + theme_minimal(),
+    labs(y = "", subtitle = "Stetige Varianzveränderung,\nVerletzung A1") + theme_minimal(),
   dat %>% 
     mutate(y = ifelse(x < 25, y * (0.5+x/75), y), y = ifelse(x %in% c(26:50), y *(0.80+x/400), y)) %>%
     mutate(y = ifelse(x > 75, y * (1.85-x/75), y), y = ifelse(x %in% c(51:75), y *(1.10-x/400), y)) %>% 
@@ -138,7 +138,7 @@ plot_grid(
               linetype = 2, colour = "blue") +
     geom_path(aes(x = x, y = y), data.frame(x = c(0, 25, 50, 75, 100), y = c(-1.25, -2.1, -2.3, -2.1, -1.25)), 
               linetype = 2, colour = "blue") + 
-    labs(y = "", subtitle = "Verschiedene Varianzdynamiken, Verletzung A1") + theme_minimal(),
+    labs(y = "", subtitle = "Verschiedene Varianzdynamiken,\nVerletzung A1") + theme_minimal(),
   dat %>% 
     mutate(y = ifelse(x %in% c(30:39), y *(0.35), y)) %>% 
     mutate(y = scale(y)) %>% 
@@ -147,7 +147,7 @@ plot_grid(
               linetype = 2, colour = "blue") +
     geom_path(aes(x = x, y = y), data.frame(x = c(0, 30, 30, 39, 39, 100), y = c(-2, -2, -0.8, -0.8, -2, -2)), 
               linetype = 2, colour = "blue") +
-    labs(y = "", subtitle = "Verschiedene Varianzdynamiken, Verletzung A1") + theme_minimal(),
+    labs(y = "", subtitle = "Verschiedene Varianzdynamiken,\nVerletzung A1") + theme_minimal(),
   dat %>% 
     mutate(y = ifelse(x %in% c(30:39), y + 1000, y), y = ifelse(x %in% c(50:59), y - 1000, y)) %>% 
     mutate(y = scale(y)) %>% 
@@ -158,7 +158,7 @@ plot_grid(
     geom_path(aes(x = x, y = y), data.frame(x = c(0, 30, 30, 39, 39, 49, 49, 60, 60, 100), 
                                             y = c(-1.85, -1.85, -1.25, -1.25,-1.85, -1.85, -2.35, -2.35, -1.85, -1.85)), 
               linetype = 2, colour = "blue") +
-    labs(y = "", subtitle = "Verschiedene Varianzen, Verletzung A1") + theme_minimal(),
+    labs(y = "", subtitle = "Verschiedene Varianzen,\nVerletzung A1") + theme_minimal(),
   nrow = 2
 )
 ```
@@ -251,6 +251,7 @@ plot_grid(
   )
 )
 ```
+  
 Wird dies bereits für bivariate Regressionen mit vielen X-Kategorien zu einem deutlichen Problem:  
 ```{r normal more, fig.height=3}
 lm_a52 <- lm(Einkommen ~ Alter, data = data.a5dem)
@@ -283,7 +284,7 @@ plot_grid(
 )
 ```
   
-Im multivariaten Fall wird dieses Problem dabei sogar *exponentiell schlimmer*, da eigentlich eine Normalverteilung **für jede einzelne Wertekombination** überprüft werden sollte (also für x1=18;x2=0, x1=18,x2=1, x1=18,x2=2, ...).  
+Im multivariaten Fall wird dieses Problem dabei sogar *exponentiell schlimmer*, da eigentlich eine Normalverteilung **für jede einzelne Wertekombination** überprüft werden sollte (also für x1=18;x2=0, x1=18;x2=1, x1=18;x2=2, ...).  
 Da das Wahnsinn ist, den nie jemand tatsächlich umsetzen wollen würde, gibt es jedoch eine einfacher umzusetzende Annäherung: Den **Test der Gesamtheit der Residuen auf Normalverteilung**. Die grundlegende Idee dahinter: Wenn man schon nicht jede Wertekombination einzeln auf Normalverteilung testen kann, sollten die Residuen zumindest in ihrer *Gesamtheit* normalverteilt sein.  
   
 Egal ob man nun jede Wertekombination einzeln oder die Gesamtheit der Residuen auf einmal testet, das generelle Procedere ist dasselbe. Wie oben abgebildet, lässt sich die Nnormalverteilung grafisch durch die Erstellung von Histogrammen oder QQ-Plots testen. Wie bei jeder anderen Verteilung lässt sich auch in diesem Fall die Normalität der Verteilung mit **Schiefe- und (Excess-)Kurtosismaßen** bewerten. Je nach Striktheit der Forschungsperspektive gelten dabei Maße zwischen ±1 bzw. ±3 als annähernd normalverteilt.  
@@ -330,7 +331,7 @@ Egal, welcher Weg gewählt wird: Zeigen sich in einer neuen Regression Unterschi
 ---
 
 ##### Notiz 1:
-Im Kontext der Visualisierung bedeutet das für bivariate Fälle, dass die Regressionsgerade einfach "flach" gelegt wird. Plakativ: Schätzen wir anhand der Regressionsgeraden $ŷ = 50 + 10*x$ für X = 5 den Y-Wert 100 und für x = 7 den Wert 120, haben aber in unseren Daten die vier Fälle F1(5|150), F2(5|75), F3(7|100) und F4(7|175) so könnten wir das für die grafische Überprüfung der A1 auch mit einer Visualisierung der tatsächlichen Werte für X und Y überprüfen (Abb. links). Da es je nach "Steilheit" der Regressionsgeraden jedoch schwer sein kann, Verteilungsunterschiede zwischen X-Werten festzustellen, ist es meist einfacher, die Regressionsgerade auf 0 zu legen, und statt der tatsächlichen Werte die Abweichung von der Regressionsgeraden (also U) auf der Y-Achse zu plotten (Abb. rechts). In unserem Fall wären dann die Werte F1(5|50), F2(5|-25), F3(7|-20) und F4(7|55) in Relation zu der berechneten Regressionsgerade. Während hier die Überprüfung der A1 im linken Plot etwas schwer fällt, ist es im rechten Plot deutlich einfacher:  
+Im Kontext der Visualisierung bedeutet das für bivariate Fälle, dass die Regressionsgerade einfach "flach" gelegt wird. Plakativ: Schätzen wir anhand der Regressionsgeraden $ŷ = 50 + 10*x$ für X = 5 den Y-Wert 100 und für x = 7 den Wert 120, haben aber in unseren Daten die vier Fälle F1(5|150), F2(5|75), F3(7|100) und F4(7|175) so könnten wir das für die grafische Überprüfung der A1 auch mit einer Visualisierung der tatsächlichen Werte für X und Y überprüfen (Abb. links). Da es je nach "Steilheit" der Regressionsgeraden jedoch schwer sein kann, Verteilungsunterschiede zwischen X-Werten festzustellen, ist es meist einfacher, die Regressionsgerade auf 0 zu legen, und statt der tatsächlichen Werte die Abweichung von der Regressionsgeraden (also U) auf der Y-Achse zu plotten (Abb. rechts). In unserem Fall wären dann die Werte F1(5|50), F2(5|-25), F3(7|-20) und F4(7|55) in Relation zu der berechneten Regressionsgerade. Während hier die Überprüfung der A1 im linken Plot etwas schwer fällt, ist es im rechten Plot deutlich einfacher: [Zurück](#visuelle-gruppenbildung)  
 ```{r add1, fig.height=2, fig.width = 8}
 plot_grid(
   ggplot(data = data.frame(x = c(5,5,7,7), y = c(150,75,100,175)), aes(x = x, y = y)) + 
@@ -344,7 +345,7 @@ plot_grid(
 ```
 
 ##### Notiz 2:
-Das hat zwei hauptsächliche Gründe: Zum Einen kann es je nach Anzahl unabhängiger Variablen und deren Skalierung ein großer Aufwand sein, jede Variable individuell auf Verteilungsunterschiede zu überprüfen. Zum Anderen ist es im multivariaten Modell nicht *ganz* so schlimm, wenn Residuen für eine einzelne Variable diese Annahme verletzen, **solange sie für das Gesamtmodell hält**. Ist das der Fall, gleichen sich die Verletzungen in individuellen X-Variablen bei Betrachtung des Gesamtmodells miteinander aus, und  ein Erzwingen der A1 für einzelne Variablen würde unter Umständen sogar zu einer Verschlechterung des Gesamtmodells führen!  
+Das hat zwei hauptsächliche Gründe: Zum Einen kann es je nach Anzahl unabhängiger Variablen und deren Skalierung ein großer Aufwand sein, jede Variable individuell auf Verteilungsunterschiede zu überprüfen. Zum Anderen ist es im multivariaten Modell nicht *ganz* so schlimm, wenn Residuen für eine einzelne Variable diese Annahme verletzen, **solange sie für das Gesamtmodell hält**. Ist das der Fall, gleichen sich die Verletzungen in individuellen X-Variablen bei Betrachtung des Gesamtmodells miteinander aus, und  ein Erzwingen der A1 für einzelne Variablen würde unter Umständen sogar zu einer Verschlechterung des Gesamtmodells führen! [Zurück](#visuelle-gruppenbildung)  
 
 
 ---
