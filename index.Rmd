@@ -32,6 +32,8 @@ Generell ist auch [dieses DataScience-Textbuch](https://rafalab.github.io/dsbook
 + [Nutzung von GitHub aus Desktop-Apps und R](https://fallenengels.github.io/R-basics/github.html)
 + [Versionskontrolle mit GitHub](https://fallenengels.github.io/R-basics/git-applied.html)
 
+#### Regressionen
++ [Inferenzstatistik 3: Residuendiagnostik](https://fallenengels.github.io/R-basics/residuendiagnostik.html)
 
 #### Textverarbeitung
 + [Pattern Matching mit Regular Expressions](https://fallenengels.github.io/R-basics/regex.html)
@@ -45,8 +47,6 @@ import os
 from datetime import datetime
 lastmodified = datetime.fromtimestamp(os.stat('index.Rmd').st_mtime)
 ```
-
-Bei Fragen und je nach Schwere der auftretenden Probleme kann ich auch im Tutorium zu Helfen versuchen. Ich habe zwar alles hier Beschriebene auf meiner Maschine getestet, das ist jedoch keine 100%ige Funktionsgarantie.  
   
 **Letzte Modifikation:** `r py$lastmodified`, R version `r getRversion()`  
 **.Rmd-Datei dieses Dokuments:** https://github.com/fallenEngels/R-basics/blob/main/index.Rmd
